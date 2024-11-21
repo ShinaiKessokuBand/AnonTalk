@@ -1,6 +1,6 @@
-package Chatroom;
+package org.shinaikessokuband.anontalk.entity;
 
-import User.User;
+import org.shinaikessokuband.anontalk.entity.User;
 import java.util.ArrayList;
 
 public class Chatroom {

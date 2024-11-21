@@ -1,7 +1,6 @@
 package org.shinaikessokuband.anontalk.service;
 
-import org.shinaikessokuband.anontalk.dao.User;
-import org.shinaikessokuband.anontalk.dto.UserDto;
+import org.shinaikessokuband.anontalk.entity.User;
 
 public interface SettingService {
 

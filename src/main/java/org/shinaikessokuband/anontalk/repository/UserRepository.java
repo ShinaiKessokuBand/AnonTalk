@@ -1,5 +1,6 @@
-package org.shinaikessokuband.anontalk.dao;
+package org.shinaikessokuband.anontalk.repository;
 
+import org.shinaikessokuband.anontalk.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

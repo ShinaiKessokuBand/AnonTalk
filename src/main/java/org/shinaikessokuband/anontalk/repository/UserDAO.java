@@ -1,11 +1,13 @@
-package User;
+package org.shinaikessokuband.anontalk.repository;
 
-import Message.Message;
+import org.shinaikessokuband.anontalk.entity.Message;
+import org.shinaikessokuband.anontalk.entity.User;
 
 import java.sql.SQLException;
 
 public interface UserDAO {
     void addUser(User user) throws SQLException;//新建用户
+
 
     void deleteUser(int id);//账号已注销
 

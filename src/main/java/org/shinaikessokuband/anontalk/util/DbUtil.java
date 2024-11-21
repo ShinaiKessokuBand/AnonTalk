@@ -1,4 +1,4 @@
-package Util;
+package org.shinaikessokuband.anontalk.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

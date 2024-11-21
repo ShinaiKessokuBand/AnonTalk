@@ -1,12 +1,12 @@
 package org.shinaikessokuband.anontalk.converter;
 
-import org.shinaikessokuband.anontalk.dao.User;
+import org.shinaikessokuband.anontalk.entity.User;
 import org.shinaikessokuband.anontalk.dto.UserDto;
 
 public class UserConverter {
     public static UserDto convertUser(User user) {
         UserDto userDto = new UserDto();
-        userDto.setAccount(user.getAccount());
+    //    userDto.setAccount(user.getAccount());
         userDto.setName(user.getName());
         userDto.setEmail(user.getEmail());
         userDto.setPassword(user.getPassword());

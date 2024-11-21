@@ -1,4 +1,4 @@
-package Chatroom;
+package org.shinaikessokuband.anontalk.repository;
 
 import java.sql.SQLException;
 

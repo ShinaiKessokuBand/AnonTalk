@@ -1,4 +1,4 @@
-package org.shinaikessokuband.anontalk.dao;
+package org.shinaikessokuband.anontalk.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -13,7 +13,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "username")//
-    private String account;
+    private String username;
 
     @Column(name = "password")
     private String password;
@@ -25,7 +25,7 @@ public class User {
     private String email;
 
     @Column(name = "age")
-    private String age;
+    private int age;
 
     @Column(name = "gender")
     private String gender;
@@ -41,4 +41,6 @@ public class User {
 
     @Column(name = "")
     private boolean isBanned = false;//DEFAULT FALSE
+
+    public String getAccount() { return username; }
 }

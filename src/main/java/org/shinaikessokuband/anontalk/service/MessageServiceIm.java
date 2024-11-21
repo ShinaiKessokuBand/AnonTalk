@@ -1,19 +1,16 @@
 package org.shinaikessokuband.anontalk.service;
 
-import org.shinaikessokuband.anontalk.dao.Message;
-import org.shinaikessokuband.anontalk.dao.MessageRepository;
+import org.shinaikessokuband.anontalk.repository.MessageDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 @Service
 public class MessageServiceIm implements MessageService {
 
     @Autowired
-    private MessageRepository messageRepository;
+    private MessageDAO messageRepository;
 
     @Override
     public void exportChatHistory(String filePath) throws IOException {

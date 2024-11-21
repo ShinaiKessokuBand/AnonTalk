@@ -1,7 +1,7 @@
 package org.shinaikessokuband.anontalk.controller;
 
 import org.shinaikessokuband.anontalk.Response;
-import org.shinaikessokuband.anontalk.dao.User;
+import org.shinaikessokuband.anontalk.entity.User;
 import org.shinaikessokuband.anontalk.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;

@@ -1,11 +1,11 @@
 package org.shinaikessokuband.anontalk.service;
 
 import org.shinaikessokuband.anontalk.converter.UserConverter;
-import org.shinaikessokuband.anontalk.dao.UserRepository;
+import org.shinaikessokuband.anontalk.repository.UserRepository;
 import org.shinaikessokuband.anontalk.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.shinaikessokuband.anontalk.dao.User;
+import org.shinaikessokuband.anontalk.entity.User;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.socket.WebSocketSession;

@@ -1,6 +1,7 @@
-package User;
+package org.shinaikessokuband.anontalk.repository;
 
 import java.sql.*;
+import org.shinaikessokuband.anontalk.entity.User;
 
 public class UserDAOImpl implements UserDAO {
     private Connection conn;
@@ -32,25 +33,27 @@ public class UserDAOImpl implements UserDAO {
             } else{
                 statement.setNull(4, Types.VARCHAR);
             }
-
+/*
             if (user.getHobby() != null && !user.getHobby().isEmpty()) {
                 statement.setString(5, user.getHobby());
             } else{
                 statement.setNull(5, Types.VARCHAR);
             }
+            */
+
 
             if (user.getEmail() != null && !user.getEmail().isEmpty()) {
                 statement.setString(6, user.getEmail());
             } else{
                 statement.setNull(6, Types.VARCHAR);
             }
-
+/*
             if (user.getPhone() != null && !user.getPhone().isEmpty()) {
                 statement.setString(7, user.getPhone());
             } else{
                 statement.setNull(7, Types.VARCHAR);
             }
-
+*/
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -75,8 +78,8 @@ public class UserDAOImpl implements UserDAO {
             statement.setString(1, user.getName());
             statement.setString(2, user.getPassword());
             statement.setInt(3, user.getAge());
-            statement.setString(4, user.getHobby());
-            statement.setInt(5, user.getUid());
+        //    statement.setString(4, user.getHobby());
+        //    statement.setInt(5, user.getUid());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -91,10 +94,10 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 User user = new User();
-                user.setUid(rs.getInt("uid"));
+            //    user.setUid(rs.getInt("uid"));
                 user.setAge(rs.getInt("age"));
                 user.setGender(rs.getString("gender"));
-                user.setHobby(rs.getString("hobby"));
+            //    user.setHobby(rs.getString("hobby"));
                 return user;
             }
         } catch (SQLException e) {

@@ -1,4 +1,4 @@
-package org.shinaikessokuband.anontalk.dao;
+package org.shinaikessokuband.anontalk.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
