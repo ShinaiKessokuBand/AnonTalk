@@ -2,7 +2,9 @@ package org.shinaikessokuband.anontalk.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.shinaikessokuband.anontalk.entity.Room;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -11,10 +13,11 @@ import java.util.Date;
 public class Message {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")
-    private String messageId;
+    private Integer messageId;
     @Column(name = "room_id")
-    private String roomId;
+    private Integer roomId;
     @Column(name = "sender_id")
     private String senderId;
     @Column(name = "message_type")
@@ -28,19 +31,27 @@ public class Message {
     @Column(name = "create_time")
     private Date createTime;
 
-    public String getMessageId() {
+    @Column(name = "timestamp")
+    private LocalDateTime timestamp;
+
+    public Integer getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(String messageId) {
+    public void setUsername(String username) {
+        this.senderId = username;
+    }
+
+
+    public void setMessageId(Integer messageId) {
         this.messageId = messageId;
     }
 
-    public String getRoomId() {
+    public Integer getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(String roomId) {
+    public void setRoomId(Integer roomId) {
         this.roomId = roomId;
     }
 
@@ -64,7 +75,7 @@ public class Message {
         return messageContent;
     }
 
-    public void setMessageContent(String messageContent) {
+    public void setMessage(String messageContent) {
         this.messageContent = messageContent;
     }
 
@@ -90,5 +101,9 @@ public class Message {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }

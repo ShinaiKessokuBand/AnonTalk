@@ -27,7 +27,7 @@ public class ChatService implements IChatService{
         Room room = roomRepository.findById(messageDto.getRoomId()).orElseThrow(()->new RuntimeException("chatroom not found"));
 
         Message message = new Message();
-        message.setRoom(room);
+        message.setRoomId(room.getRoomId());
         message.setUsername(messageDto.getUsername());
         message.setMessage(messageDto.getMessage());
         message.setTimestamp(LocalDateTime.now());

@@ -25,3 +25,4 @@ replay_pid*
 
 # Garbage file of macOS
 .DS_Store
+/target/
