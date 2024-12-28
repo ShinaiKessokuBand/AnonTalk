@@ -6,22 +6,22 @@ import java.util.ArrayList;
 
 @Data
 public class Chatroom {
-    private String rid;
-    private String rname;
+    private String roomId;
+    private String roomName;
     private ArrayList<User> users;
 
     public void setRid(String rid) {
-        this.rid = rid;
+        this.roomId = rid;
     }
 
     public String getRid() {
-        return rid;
+        return roomName;
     }
 
     public void setRname(String rname) {
-        this.rname = rname;
+        this.roomName = rname;
     }
     public String getRname() {
-        return rname;
+        return roomName;
     }
 }
