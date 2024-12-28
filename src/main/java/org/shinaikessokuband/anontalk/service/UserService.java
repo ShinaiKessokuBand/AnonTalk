@@ -2,6 +2,7 @@ package org.shinaikessokuband.anontalk.service;
 
 import org.shinaikessokuband.anontalk.entity.User;
 import org.shinaikessokuband.anontalk.dto.UserDto;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -9,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface UserService {
-
-    String registerNewUser(UserDto userDto);//register
 
     void userOnline(String username);
 
@@ -33,6 +32,9 @@ public interface UserService {
     UserDto login(String account, String password);
 
     boolean logout(String account);
+
+    @Transactional
+    String registerNewUser(String phone, String username, String password);
 
     List<User> getAllUsers();
 

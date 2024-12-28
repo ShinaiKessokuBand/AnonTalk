@@ -15,14 +15,14 @@ public class SettingServiceIm implements SettingService{
     @Override
     @Transactional
     public User updateStudentByAccount(String account, String name, String email,String password,String hobbies,String phoneNumber) {
-        if (userRepository.findByAccount(account) == null) {
+        if (userRepository.findByUserId(account) == null) {
             throw new IllegalArgumentException("account: " + account + " does not exist");
         }
         else {
-            User userInDB = (User) userRepository.findByAccount(account);
+            User userInDB = (User) userRepository.findByUserId(account);
 
-            if (name != null && !userInDB.getName().equals(name)) {
-                userInDB.setName(name);
+            if (name != null && !userInDB.getUsername().equals(name)) {
+                userInDB.setUsername(name);
             }
             if (email != null && !userInDB.getEmail().equals(email)) {
                 userInDB.setEmail(email);
@@ -43,11 +43,11 @@ public class SettingServiceIm implements SettingService{
 
     @Override
     public User getUserByAccount(String account) {
-        if (userRepository.findByAccount(account) == null) {
+        if (userRepository.findByUserId(account) == null) {
             throw new IllegalArgumentException("account: " + account + " does not exist");
         }
         else {
-            return (User) userRepository.findByAccount(account);
+            return (User) userRepository.findByUserId(account);
         }
     }
 }

@@ -1,8 +1,10 @@
 package org.shinaikessokuband.anontalk.entity;
 
+import lombok.Data;
 import org.shinaikessokuband.anontalk.entity.User;
 import java.util.ArrayList;
 
+@Data
 public class Chatroom {
     private String rid;
     private String rname;

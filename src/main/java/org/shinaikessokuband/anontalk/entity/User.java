@@ -12,14 +12,14 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "username")//
-    private String username;
+    @Column(name = "userId")//account=userId
+    private String userId;
 
     @Column(name = "password")
     private String password;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "username")
+    private String username;//用户名
 
     @Column(name = "email")
     private String email;
@@ -42,7 +42,6 @@ public class User {
     @Column(name = "")
     private boolean isBanned = false;//DEFAULT FALSE
 
-    public String getAccount() { return username; }
 
     public String getUsername() {
         return username;
@@ -58,14 +57,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {

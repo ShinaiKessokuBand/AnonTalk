@@ -12,14 +12,14 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public void addUser(User user) throws SQLException {
-        if (user.getName() == null || user.getPassword() == null || user.getName().isEmpty() ||
+        if (user.getUsername() == null || user.getPassword() == null || user.getUsername().isEmpty() ||
                 user.getPassword().isEmpty()) {
             throw new IllegalArgumentException("昵称和密码是必填的！");
         }
 
         String query = "insert into userinfo (uname, psw, age, gender, hobby, email, phone)values(?,?,?,?,?,?,?)";
         try (PreparedStatement statement = conn.prepareStatement(query)) {
-            statement.setString(1, user.getName());//姓名
+            statement.setString(1, user.getUsername());//昵称
             statement.setString(2, user.getPassword());//密码
 //            设置可选字段，若空则传null
             if (user.getAge() != 0) {
@@ -75,7 +75,7 @@ public class UserDAOImpl implements UserDAO {
     public void updateUser(User user) {
         String query = "UPDATE userinfo SET uname = ?, psw = ?, age = ?, hobby = ? WHERE uid = ?";
         try (PreparedStatement statement = conn.prepareStatement(query)) {
-            statement.setString(1, user.getName());
+            statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setInt(3, user.getAge());
         //    statement.setString(4, user.getHobby());

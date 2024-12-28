@@ -4,13 +4,13 @@ import lombok.Data;
 
 @Data
 public class UserDto {
-    private String account;
+    private String userId;//account=username
 
     private String password;
 
     private String confirmPassword;
 
-    private String name;
+    private String username;
 
     private String email;
 

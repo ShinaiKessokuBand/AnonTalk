@@ -6,9 +6,7 @@ import org.shinaikessokuband.anontalk.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -20,26 +18,26 @@ public class AdminController {
     @Autowired
     private MessageService messageService;
 
-    @GetMapping("/admin")
+    @GetMapping("/api/users")
     public Response<String> adminPage(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
-        model.addAttribute("onlineUserCount", userService.getOnlineUserCount());
-        return Response.newSuccess("admin"); // 返回管理页面视图
+        model.addAttribute("getAllUsers", userService.getAllUsers());
+        model.addAttribute("getOnlineUserCount", userService.getOnlineUserCount());
+        return Response.newSuccess("api/users"); // 返回管理页面视图
     }
 
-    @PostMapping("/admin/banUser")
-    public Response<String> banUser(@RequestParam String account) {
-        userService.banUser(account);
-        return Response.newSuccess("redirect:/admin");
+    @PutMapping("/api/users/{userId}")
+    public Response<String> disableUser(@PathVariable String userId) {
+        userService.banUser(userId);
+        return Response.newSuccess("redirect:/api/users");
     }
 
-    @PostMapping("/admin/activateUser")
-    public Response<String> activateUser(@RequestParam String account) {
-        userService.activateUser(account);
-        return Response.newSuccess("redirect:/admin");
+    @PostMapping("/api/users/{userId}")
+    public Response<String> activateUser(@PathVariable String userId) {
+        userService.activateUser(userId);
+        return Response.newSuccess("redirect:/api/users");
     }
 
-    @PostMapping("/admin/exportChatHistory")
+    @GetMapping("/admin/exportChatHistory")
     public String exportChatHistory() {
         try {
             messageService.exportChatHistory("chat_history.json"); // 导出聊天记录
