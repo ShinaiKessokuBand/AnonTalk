@@ -18,7 +18,7 @@ public class SettingController {
                                               @RequestParam(required = false) String hobbies, @RequestParam(required = false) String phoneNumber,
                                               Model model) {
         model.addAttribute("updateUser", settingService.updateStudentByAccount(userId,username,email,password,hobbies,phoneNumber));
-        return Response.newSuccess("api/users");
+        return Response.newSuccess("/api/users");
     }
     @GetMapping("/api/users")
     public Response<User> getUserByAccount(@PathVariable String account, Model model) {

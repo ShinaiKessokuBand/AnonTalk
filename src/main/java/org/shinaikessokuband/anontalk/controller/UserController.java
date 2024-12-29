@@ -4,9 +4,13 @@ import org.shinaikessokuband.anontalk.Response;
 import org.shinaikessokuband.anontalk.dto.UserDto;
 import org.shinaikessokuband.anontalk.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 @RestController
+@RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:8089")
 public class UserController {
 
     @Autowired
@@ -17,9 +21,10 @@ public class UserController {
         return Response.newSuccess(userService.getUserByAccount(account));
     }
 
+    @CrossOrigin(origins = "http://localhost:8089")
     @PostMapping("/api/register")
     public Response<String> registerNewUser(@RequestBody UserDto userDto) {
-        return Response.newSuccess(userService.registerNewUser(userDto));
+        return Response.newSuccess(userService.registerNewUser(userDto).toString());
     }
 
     @DeleteMapping("/api/users/{account}")
@@ -36,6 +41,10 @@ public class UserController {
         }else{
             return Response.newSuccess("Invalid account or password!");
         }
+    }
+    @GetMapping("/api/login")
+    public ModelAndView getLogin() {
+        return new ModelAndView("redirect:/index.html");
     }
     @PutMapping("/api/logout")
     public Response<String> logout(String account) {

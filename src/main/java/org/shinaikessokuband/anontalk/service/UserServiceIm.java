@@ -92,17 +92,12 @@ public class UserServiceIm implements UserService {
     @Transactional
     @Override
     public String registerNewUser(String phone, String username, String password) {
-        boolean flag = true;
         UserDto userDto = new UserDto();
         userDto.setPhoneNumber(phone);
         userDto.setUsername(username);
         userDto.setPassword(password);
-        while (flag) {
-            String account = generateRandomUsername();
-            if (userRepository.findByUserId(account) == null) {
-                userDto.setUserId(account);
-                flag = false;
-            }
+        if(userRepository.findByUserId(username) != null){
+            throw new IllegalStateException("Username: " + username + " has been taken.");
         }
         List<User> userList = userRepository.findByEmail(userDto.getEmail());
         if (!CollectionUtils.isEmpty(userList)) {
@@ -147,15 +142,30 @@ public class UserServiceIm implements UserService {
     public void activateUser(String account) {
         User user = (User) userRepository.findByUserId(account);
         if (user != null) {
-            user.setBanned(false); // 解除封禁
+            user.setBanned(false); // 设置用户为解封状态
             userRepository.save(user); // 保存用户状态
         }
     }
 
-
-    private static String generateRandomUsername() {
-        return UUID.randomUUID().toString().substring(0, 8); // 生成一个8位随机账户
+    @Override
+    @Transactional
+    public String registerNewUser(UserDto userDto) {
+        if (userRepository.findByUserId(userDto.getUsername()) != null) {
+            throw new IllegalStateException("Username: " + userDto.getUsername() + " has been taken.");
+        }
+        List<User> userList = userRepository.findByEmail(userDto.getEmail());
+        if (!CollectionUtils.isEmpty(userList)) {
+            throw new IllegalStateException("Email: " + userDto.getEmail() + " has been taken.");
+        }
+        List<User> userList1 = userRepository.findByPhoneNumber(userDto.getPhoneNumber());
+        if (!CollectionUtils.isEmpty(userList1)) {
+            throw new IllegalStateException("PhoneNumber: " + userDto.getPhoneNumber() + " has been taken.");
+        }
+        User user = UserConverter.convertUserDto(userDto);
+        user = userRepository.save(user);
+        return String.valueOf(user.getUserId());
     }
+
 
 
 }

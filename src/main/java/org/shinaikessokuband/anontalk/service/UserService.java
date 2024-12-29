@@ -43,4 +43,6 @@ public interface UserService {
     void banUser(String account);
 
     void activateUser(String account);
+
+    String registerNewUser(UserDto userDto);
 }
