@@ -12,22 +12,22 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/user/{account}")
+    @GetMapping("/api/users/{account}")
     public Response<UserDto> getUserByAccount(@PathVariable String account) {
         return Response.newSuccess(userService.getUserByAccount(account));
     }
 
-    @PostMapping("/register")
+    @PostMapping("/api/register")
     public Response<String> registerNewUser(@RequestBody UserDto userDto) {
         return Response.newSuccess(userService.registerNewUser(userDto));
     }
 
-    @DeleteMapping("/user/{account}")
+    @DeleteMapping("/api/users/{account}")
     public void deleteUser(@PathVariable String account) {
         userService.deleteUserByAccount(account);
     }
 //,@RequestParam(required = false) String email,@RequestParam(required = false) String phoneNumber
-    @PutMapping("/login")
+    @PutMapping("/api/login")
     public Response<String> login(@RequestParam String account, @RequestParam String password) {
         UserDto userDto = userService.login(account,password);
         if (userDto != null) {
@@ -37,7 +37,7 @@ public class UserController {
             return Response.newSuccess("Invalid account or password!");
         }
     }
-    @PutMapping("/logout")
+    @PutMapping("/api/logout")
     public Response<String> logout(String account) {
         if (userService.logout(account))
             return Response.newSuccess("Logout successful!");
