@@ -12,15 +12,15 @@ public class SettingController {
     @Autowired
     SettingService settingService;
 
-    @PutMapping("/setting/update")
-    public Response<String> updateUserByAccount(@PathVariable String account, @RequestParam(required = false) String name,
+    @PutMapping("/api/users/{userId}")
+    public Response<String> updateUser(@PathVariable String userId, @RequestParam(required = false) String username,
                                               @RequestParam(required = false) String email, @RequestParam(required = false) String password,
                                               @RequestParam(required = false) String hobbies, @RequestParam(required = false) String phoneNumber,
                                               Model model) {
-        model.addAttribute("update", settingService.updateStudentByAccount(account,name,email,password,hobbies,phoneNumber));
-        return Response.newSuccess("setting");
+        model.addAttribute("updateUser", settingService.updateStudentByAccount(userId,username,email,password,hobbies,phoneNumber));
+        return Response.newSuccess("api/users");
     }
-    @GetMapping("/setting")
+    @GetMapping("/api/users")
     public Response<User> getUserByAccount(@PathVariable String account, Model model) {
         model.addAttribute("account", settingService.getUserByAccount(account));
         return Response.newSuccess(settingService.getUserByAccount(account));

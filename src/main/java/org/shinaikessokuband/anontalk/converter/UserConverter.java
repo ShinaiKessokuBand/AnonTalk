@@ -7,7 +7,7 @@ public class UserConverter {
     public static UserDto convertUser(User user) {
         UserDto userDto = new UserDto();
     //    userDto.setAccount(user.getAccount());
-        userDto.setName(user.getName());
+        userDto.setUsername(user.getUsername());
         userDto.setEmail(user.getEmail());
         userDto.setPassword(user.getPassword());
         userDto.setPhoneNumber(user.getPhoneNumber());
@@ -16,7 +16,7 @@ public class UserConverter {
     }
     public static User convertUserDto(UserDto userDto) {
         User user = new User();
-        user.setName(userDto.getName());
+        user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
         user.setPassword(userDto.getPassword());
         user.setPhoneNumber(userDto.getPhoneNumber());
