@@ -52,19 +52,23 @@ public class UserServiceIm implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public UserDto getUserByAccount(String account) {
+    public UserDto getUserByAccount(String userName) {
+        User user = (User) userRepository.findByUsername(userName);
 
-        User user = (User) userRepository.findByUserId(account);
-        return UserConverter.convertUser(user);
+        if (user!=null){
+            return UserConverter.convertUser(user);
+        }
+        return null;
     }
 
     @Override
-    public void deleteUserByAccount(String account) {
-        if (userRepository.findByUserId(account) == null) {
-            throw new IllegalArgumentException("account: " + account + " does not exist");
+    public void deleteUserByAccount(String userName) {
+        User user = (User) userRepository.findByUsername(userName);
+        if (user!=null)
+        {
+            throw new IllegalArgumentException("account: " + userName + " does not exist");
         }
-        else
-            userRepository.deleteByUserId(account);
+        else userRepository.deleteByUserId(user.getUserId());
     }
 
 
@@ -80,8 +84,8 @@ public class UserServiceIm implements UserService {
     }
 
     @Override
-    public boolean logout(String account) {
-        User user = (User) userRepository.findByUserId(account);
+    public boolean logout(String userName) {
+        User user = (User) userRepository.findByUsername(userName);
         if (user != null) {
             user.setOnline(false);
             return true;
@@ -91,12 +95,12 @@ public class UserServiceIm implements UserService {
 
     @Transactional
     @Override
-    public String registerNewUser(String phone, String username, String password) {
+    public Integer registerNewUser(String phone, String username, String password) {
         UserDto userDto = new UserDto();
         userDto.setPhoneNumber(phone);
         userDto.setUsername(username);
         userDto.setPassword(password);
-        if(userRepository.findByUserId(username) != null){
+        if(userRepository.findByUsername(username) != null){
             throw new IllegalStateException("Username: " + username + " has been taken.");
         }
         List<User> userList = userRepository.findByEmail(userDto.getEmail());
@@ -130,8 +134,8 @@ public class UserServiceIm implements UserService {
     }
 
     @Override
-    public void banUser(String account) {
-        User user = (User) userRepository.findByUserId(account);
+    public void banUser(String userName) {
+        User user = (User) userRepository.findByUsername(userName);
         if (user != null) {
             user.setBanned(true); // 设置用户为封禁状态
             userRepository.save(user); // 保存用户状态
@@ -139,8 +143,8 @@ public class UserServiceIm implements UserService {
     }
 
     @Override
-    public void activateUser(String account) {
-        User user = (User) userRepository.findByUserId(account);
+    public void activateUser(String userName) {
+        User user = (User) userRepository.findByUsername(userName);
         if (user != null) {
             user.setBanned(false); // 设置用户为解封状态
             userRepository.save(user); // 保存用户状态
@@ -150,7 +154,7 @@ public class UserServiceIm implements UserService {
     @Override
     @Transactional
     public String registerNewUser(UserDto userDto) {
-        if (userRepository.findByUserId(userDto.getUsername()) != null) {
+        if (userRepository.findByUsername(userDto.getUsername()) != null) {
             throw new IllegalStateException("Username: " + userDto.getUsername() + " has been taken.");
         }
         List<User> userList = userRepository.findByEmail(userDto.getEmail());
@@ -163,7 +167,7 @@ public class UserServiceIm implements UserService {
         }
         User user = UserConverter.convertUserDto(userDto);
         user = userRepository.save(user);
-        return String.valueOf(user.getUserId());
+        return user.getUsername();
     }
 
 

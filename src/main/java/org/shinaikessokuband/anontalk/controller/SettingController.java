@@ -13,7 +13,7 @@ public class SettingController {
     SettingService settingService;
 
     @PutMapping("/api/users/{userId}")
-    public Response<String> updateUser(@PathVariable String userId, @RequestParam(required = false) String username,
+    public Response<String> updateUser(@PathVariable Integer userId, @RequestParam(required = false) String username,
                                               @RequestParam(required = false) String email, @RequestParam(required = false) String password,
                                               @RequestParam(required = false) String hobbies, @RequestParam(required = false) String phoneNumber,
                                               Model model) {
@@ -21,8 +21,8 @@ public class SettingController {
         return Response.newSuccess("/api/users");
     }
     @GetMapping("/api/users")
-    public Response<User> getUserByAccount(@PathVariable String account, Model model) {
-        model.addAttribute("account", settingService.getUserByAccount(account));
-        return Response.newSuccess(settingService.getUserByAccount(account));
+    public Response<User> getUserByAccount(@PathVariable String userName, Model model) {
+        model.addAttribute("account", settingService.getUserByAccount(userName));
+        return Response.newSuccess(settingService.getUserByAccount(userName));
     }
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserDto {
-    private String userId;//account=username
+    private Integer userId;//account=username
 
     private String password;
 

@@ -6,14 +6,14 @@ import lombok.Data;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Data
-@Entity
 @Table(name = "user")
+@Entity
 public class User {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "userId")//account=userId
-    private String userId;
+    @Column(name = "userId")//account=username
+    private Integer userId;
 
     @Column(name = "password")
     private String password;

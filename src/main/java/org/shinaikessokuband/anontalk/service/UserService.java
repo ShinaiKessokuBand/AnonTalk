@@ -25,24 +25,24 @@ public interface UserService {
 
     Map<String, WebSocketSession> getUserSessions();
 
-    UserDto getUserByAccount(String account);
+    UserDto getUserByAccount(String userName);
 
-    void deleteUserByAccount(String account);
+    void deleteUserByAccount(String userName);
 
-    UserDto login(String account, String password);
+    UserDto login(String username, String password);
 
-    boolean logout(String account);
+    boolean logout(String userName);
 
     @Transactional
-    String registerNewUser(String phone, String username, String password);
+    Integer registerNewUser(String phone, String username, String password);
 
     List<User> getAllUsers();
 
     int getOnlineUserCount();
 
-    void banUser(String account);
+    void banUser(String userName);
 
-    void activateUser(String account);
+    void activateUser(String userName);
 
     String registerNewUser(UserDto userDto);
 }
