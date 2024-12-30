@@ -16,16 +16,15 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/register", "/api/login", "/index.html"))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/register", "/api/login", "/index.html", "/js/**", "/css/**", "/img/**").permitAll()
+                        .requestMatchers("/", "/api/register", "/api/login", "/index.html", "/js/**", "/css/**", "/img/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/api/login")
+                        .loginPage("/")
                         .defaultSuccessUrl("/home", true)
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/api/logout")
-                        .logoutSuccessUrl("/api/login")
+                        .logoutSuccessUrl("/")
                 );
         return http.build();
     }
