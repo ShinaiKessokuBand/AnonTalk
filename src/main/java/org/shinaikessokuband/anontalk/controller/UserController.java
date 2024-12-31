@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:8089")
+@CrossOrigin(origins = "${app.domain}")
 public class UserController {
 
     @Autowired
@@ -23,7 +23,7 @@ public class UserController {
         return Response.newSuccess(userService.getUserByAccount(userName));
     }
 
-    @CrossOrigin(origins = "http://localhost:8089")
+    @CrossOrigin(origins = "${app.domain}")
     @PostMapping("/register")
     public Response<String> registerNewUser(@RequestBody Map<String, String> registerData) {
         String phone = registerData.get("phone");
@@ -35,9 +35,11 @@ public class UserController {
             response.put("success", false);
             return Response.newSuccess(response.toString());
         }
-        response.put("success", true);
-        response.put("userid", ret);
-        return Response.newSuccess(response.toString());
+        else {
+            response.put("success", true);
+            response.put("userid", ret);
+            return Response.newSuccess(response.toString());
+        }
     }
 
     @DeleteMapping("/users/{userName}")
