@@ -1,5 +1,6 @@
 package org.shinaikessokuband.anontalk.converter;
 
+import org.shinaikessokuband.anontalk.dto.UserRegDto;
 import org.shinaikessokuband.anontalk.entity.User;
 import org.shinaikessokuband.anontalk.dto.UserDto;
 
@@ -21,6 +22,15 @@ public class UserConverter {
         user.setPassword(userDto.getPassword());
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setOnline(userDto.isOnline());
+        return user;
+    }
+    public static User convertUserDto(UserRegDto userDto) {
+        User user = new User();
+        user.setUsername(userDto.getUsername());
+        user.setEmail("");
+        user.setPassword(userDto.getPassword());
+        user.setPhoneNumber(userDto.getPhoneNumber());
+        user.setOnline(false);
         return user;
     }
 }

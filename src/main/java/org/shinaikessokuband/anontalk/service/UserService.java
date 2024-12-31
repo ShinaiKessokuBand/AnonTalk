@@ -1,5 +1,6 @@
 package org.shinaikessokuband.anontalk.service;
 
+import org.shinaikessokuband.anontalk.dto.UserRegDto;
 import org.shinaikessokuband.anontalk.entity.User;
 import org.shinaikessokuband.anontalk.dto.UserDto;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public interface UserService {
 
     void deleteUserByAccount(String userName);
 
-    UserDto login(String username, String password);
+    int login(String username, String password);
 
     boolean logout(String userName);
 
@@ -44,5 +45,5 @@ public interface UserService {
 
     void activateUser(String userName);
 
-    String registerNewUser(UserDto userDto);
+    String registerNewUser(UserRegDto userDto);
 }

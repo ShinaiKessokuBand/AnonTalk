@@ -1,8 +1,11 @@
 package org.shinaikessokuband.anontalk.service;
 
 import org.shinaikessokuband.anontalk.converter.UserConverter;
+import org.shinaikessokuband.anontalk.dto.UserRegDto;
 import org.shinaikessokuband.anontalk.repository.UserRepository;
 import org.shinaikessokuband.anontalk.dto.UserDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.shinaikessokuband.anontalk.entity.User;
@@ -10,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 
 @Service
@@ -72,15 +78,43 @@ public class UserServiceIm implements UserService {
     }
 
 
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceIm.class);
+
+    @Autowired
+    private DataSource dataSource;
 
     @Override
-    public UserDto login(String username, String password) {
-        User user = (User) userRepository.findByUsername(username);
-        if (user != null&& user.getPassword().equals(password)) {
-            user.setOnline(true);
-            return UserConverter.convertUser(user);
-        }else
-            throw new IllegalArgumentException("user: " + username + " does not exist");
+    public int login(String username, String password) {
+        // Check database connection
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection.isValid(2)) {
+                logger.info("Database connection is successful.");
+            } else {
+                logger.error("Database connection failed.");
+                return -1;
+            }
+        } catch (SQLException e) {
+            logger.error("Database connection failed: " + e.getMessage());
+            return -1;
+        }
+
+        // Log in logic
+        logger.info("Attempting to log in with username: {}", username);
+        List<User> users = userRepository.findByUsername(username);
+        if (!users.isEmpty()) {
+            User user = users.get(0); // Assuming username is unique and taking the first match
+            if (user.getPassword().equals(password)) {
+                user.setOnline(true);
+                logger.info("Login successful for username: {}", username);
+                return user.getUserId();
+            } else {
+                logger.warn("Login failed for username: {}", username);
+                return -1;
+            }
+        } else {
+            logger.warn("No user found with username: {}", username);
+            return -1;
+        }
     }
 
     @Override
@@ -153,13 +187,9 @@ public class UserServiceIm implements UserService {
 
     @Override
     @Transactional
-    public String registerNewUser(UserDto userDto) {
+    public String registerNewUser(UserRegDto userDto) {
         if (userRepository.findByUsername(userDto.getUsername()) != null) {
             throw new IllegalStateException("Username: " + userDto.getUsername() + " has been taken.");
-        }
-        List<User> userList = userRepository.findByEmail(userDto.getEmail());
-        if (!CollectionUtils.isEmpty(userList)) {
-            throw new IllegalStateException("Email: " + userDto.getEmail() + " has been taken.");
         }
         List<User> userList1 = userRepository.findByPhoneNumber(userDto.getPhoneNumber());
         if (!CollectionUtils.isEmpty(userList1)) {
