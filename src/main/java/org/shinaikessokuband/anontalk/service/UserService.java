@@ -12,19 +12,6 @@ import java.util.Set;
 
 public interface UserService {
 
-    void userOnline(String username);
-
-    void userOffline(String username);
-
-    Set<String> getOnlineUsers();
-
-    void addSession(String username, WebSocketSession session);
-
-    void removeSession(String username);
-
-    WebSocketSession getSession(String username);
-
-    Map<String, WebSocketSession> getUserSessions();
 
     UserDto getUserByAccount(String userName);
 

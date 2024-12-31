@@ -33,7 +33,7 @@ public class User {
     @Column(name = "hobbies")
     private String hobbies;
 
-    @Column(name = "phonenumber")
+    @Column(name = "phonen")
     private String phoneNumber;
 
     @Column(name = "")
@@ -95,8 +95,8 @@ public class User {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhoneNumber(String phone) {
+        this.phoneNumber = phone;
     }
 
     public boolean isOnline() {

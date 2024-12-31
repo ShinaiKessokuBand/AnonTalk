@@ -21,38 +21,6 @@ import java.util.*;
 @Service
 public class UserServiceIm implements UserService {
 
-    private final Map<String, WebSocketSession> userSessions = Collections.synchronizedMap(new HashMap<>());
-
-    @Override
-    public void addSession(String username, WebSocketSession session) {
-        userSessions.put(username, session);
-    }
-    @Override
-    public void removeSession(String username) {
-        userSessions.remove(username);
-    }
-    @Override
-    public WebSocketSession getSession(String username) {
-        return userSessions.get(username);
-    }
-    @Override
-    public Map<String, WebSocketSession> getUserSessions() {
-        return userSessions;
-    }
-    private final Set<String> onlineUsers = Collections.synchronizedSet(new HashSet<String>());
-
-    @Override
-    public void userOnline(String username) {
-        onlineUsers.add(username);
-    }
-    @Override
-    public void userOffline(String username) {
-        onlineUsers.remove(username);
-    }
-    @Override
-    public Set<String> getOnlineUsers() {
-        return onlineUsers;
-    }
 
     @Autowired
     private UserRepository userRepository;
