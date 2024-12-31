@@ -25,8 +25,19 @@ public class UserController {
 
     @CrossOrigin(origins = "http://localhost:8089")
     @PostMapping("/register")
-    public Response<String> registerNewUser(@RequestBody UserRegDto userDto) {
-        return Response.newSuccess(userService.registerNewUser(userDto).toString());
+    public Response<String> registerNewUser(@RequestBody Map<String, String> registerData) {
+        String phone = registerData.get("phone");
+        String username = registerData.get("username");
+        String password = registerData.get("password");
+        Map<String, Object> response = new HashMap<>();
+        int ret = userService.registerNewUser(phone, username, password);
+        if(ret == -1) {
+            response.put("success", false);
+            return Response.newSuccess(response.toString());
+        }
+        response.put("success", true);
+        response.put("userid", ret);
+        return Response.newSuccess(response.toString());
     }
 
     @DeleteMapping("/users/{userName}")

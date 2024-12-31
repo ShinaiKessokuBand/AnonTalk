@@ -102,16 +102,9 @@ public class UserServiceIm implements UserService {
         userDto.setPhoneNumber(phone);
         userDto.setUsername(username);
         userDto.setPassword(password);
-        if(userRepository.findByUsername(username) != null){
-            throw new IllegalStateException("Username: " + username + " has been taken.");
-        }
-        List<User> userList = userRepository.findByEmail(userDto.getEmail());
-        if (!CollectionUtils.isEmpty(userList)) {
-            throw new IllegalStateException("Email: " + userDto.getEmail() + " has been taken.");
-        }
-        List<User> userList1 = userRepository.findByPhoneNumber(userDto.getPhoneNumber());
-        if (!CollectionUtils.isEmpty(userList1)) {
-            throw new IllegalStateException("PhoneNumber: " + userDto.getPhoneNumber() + " has been taken.");
+        if(!userRepository.findByUsername(username).isEmpty()){
+            logger.error("Username: " + username + " has been taken.");
+            return -1;
         }
         User user = userRepository.save(UserConverter.convertUserDto(userDto));
         return user.getUserId();
