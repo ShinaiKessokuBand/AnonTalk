@@ -29,4 +29,15 @@ public class Post {
     @Column(name="content", columnDefinition = "TEXT")
     private String content;
 
+    @Column(name="content_pre")
+    private String contentPre;
+
+    public Post(String author, String title, String content) {
+        this.author = author;
+        this.title = title;
+        this.content = content;
+    }
+
+    public Post(){
+    }
 }
