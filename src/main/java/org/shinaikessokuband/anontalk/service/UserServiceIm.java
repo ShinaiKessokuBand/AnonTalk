@@ -27,22 +27,24 @@ public class UserServiceIm implements UserService {
 
     @Override
     public UserDto getUserByAccount(String userName) {
-        User user = (User) userRepository.findByUsername(userName);
-
-        if (user!=null){
-            return UserConverter.convertUser(user);
+        List<User> res = userRepository.findByUsername(userName);
+        if(res != null) {
+            return UserConverter.convertUser(res.get(0));
         }
         return null;
     }
 
     @Override
     public void deleteUserByAccount(String userName) {
-        User user = (User) userRepository.findByUsername(userName);
-        if (user!=null)
+        List<User> res = userRepository.findByUsername(userName);
+
+        if (res != null)
         {
-            throw new IllegalArgumentException("account: " + userName + " does not exist");
+            User user = res.getFirst();
+            userRepository.deleteByUserId(user.getUserId());
         }
-        else userRepository.deleteByUserId(user.getUserId());
+        else
+            throw new IllegalArgumentException("account: " + userName + " does not exist");
     }
 
 
@@ -146,21 +148,20 @@ public class UserServiceIm implements UserService {
         }
     }
 
-    @Override
     @Transactional
-    public String registerNewUser(UserRegDto userDto) {
-        if (userRepository.findByUsername(userDto.getUsername()) != null) {
-            throw new IllegalStateException("Username: " + userDto.getUsername() + " has been taken.");
+    public int updateUserInfo(int userid, String username, String gender, String hobbies) {
+        List<User> result = userRepository.findByUserId(userid);
+        if (result.isEmpty()) {
+            logger.error("User with id: " + userid + " does not exist.");
+            return -1;
         }
-        List<User> userList1 = userRepository.findByPhoneNumber(userDto.getPhoneNumber());
-        if (!CollectionUtils.isEmpty(userList1)) {
-            throw new IllegalStateException("PhoneNumber: " + userDto.getPhoneNumber() + " has been taken.");
+        User user = result.getFirst();
+        user.setGender(gender);
+        user.setHobbies(hobbies);
+        if(!username.isEmpty()) {
+            user.setUsername(username);
         }
-        User user = UserConverter.convertUserDto(userDto);
-        user = userRepository.save(user);
-        return user.getUsername();
+        userRepository.save(user);
+        return 0;
     }
-
-
-
 }

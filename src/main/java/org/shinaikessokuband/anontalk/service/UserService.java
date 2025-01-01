@@ -32,5 +32,5 @@ public interface UserService {
 
     void activateUser(String userName);
 
-    String registerNewUser(UserRegDto userDto);
+    int updateUserInfo(int userid, String username, String gender, String hobbies);
 }

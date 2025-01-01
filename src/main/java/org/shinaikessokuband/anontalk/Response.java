@@ -14,10 +14,10 @@ public class Response<T> {
         response.setSuccess(true);
         return response;
     }
-    public static <K> Response<K> newError (String errorMsg) {
+    public static <K> Response<K> newError (K data) {
         Response<K> response = new Response<K>();
+        response.setData(data);
         response.setSuccess(false);
-        response.setErrorMsg(errorMsg);
         return response;
     }
 }
