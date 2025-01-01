@@ -18,7 +18,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Getter
     private final Map<Long, WebSocketSession> userSessions = Collections.synchronizedMap(new HashMap<>());
     @Getter
-    private final Set<Long> onlineUsers = Collections.synchronizedSet(new HashSet<Long>());
+    private final Set<Long> onlineUsers = Collections.synchronizedSet(new HashSet<>());
 
     // 新增：一个等待匹配的用户队列
     private final Queue<WebSocketSession> waitingUsers = new LinkedList<>();
