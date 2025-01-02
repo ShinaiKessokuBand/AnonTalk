@@ -28,7 +28,7 @@ public class UserServiceIm implements UserService {
     @Override
     public UserDto getUserByAccount(String userName) {
         List<User> res = userRepository.findByUsername(userName);
-        if(res != null) {
+        if(!res.isEmpty()) {
             return UserConverter.convertUser(res.get(0));
         }
         return null;
@@ -160,6 +160,24 @@ public class UserServiceIm implements UserService {
         user.setHobbies(hobbies);
         if(!username.isEmpty()) {
             user.setUsername(username);
+        }
+        userRepository.save(user);
+        return 0;
+    }
+
+    @Transactional
+    public int updateUserSecurity(int userid, String password, String phone) {
+        List<User> result = userRepository.findByUserId(userid);
+        if (result.isEmpty()) {
+            logger.error("User with id: " + userid + " does not exist.");
+            return -1;
+        }
+        User user = result.getFirst();
+        if(!password.isEmpty()) {
+            user.setPassword(password);
+        }
+        if(!phone.isEmpty()) {
+            user.setPhoneNumber(phone);
         }
         userRepository.save(user);
         return 0;

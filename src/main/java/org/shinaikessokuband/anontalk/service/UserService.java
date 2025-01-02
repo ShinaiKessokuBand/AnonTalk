@@ -33,4 +33,6 @@ public interface UserService {
     void activateUser(String userName);
 
     int updateUserInfo(int userid, String username, String gender, String hobbies);
+
+    int updateUserSecurity(int userid, String password, String phone);
 }

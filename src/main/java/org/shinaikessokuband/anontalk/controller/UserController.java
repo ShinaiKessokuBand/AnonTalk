@@ -80,6 +80,23 @@ public class UserController {
             return Response.newSuccess(response);
         }
     }
+
+    @PutMapping("/userSecurity/{userid}")
+    public Response<Map<String, Object>> updateUserSecurity(@PathVariable int userid, @RequestBody Map<String, String> updateData) {
+        String password = updateData.get("password");
+        String phone = updateData.get("phone");
+        Map<String, Object> response = new HashMap<>();
+        int ret = userService.updateUserSecurity(userid, password, phone);
+        if(ret == -1) {
+            response.put("success", false);
+            return Response.newSuccess(response);
+        }
+        else {
+            response.put("success", true);
+            response.put("userid", ret);
+            return Response.newSuccess(response);
+        }
+    }
     @PutMapping("/logout")
     public Response<String> logout(String userName) {
         if (userService.logout(userName))
