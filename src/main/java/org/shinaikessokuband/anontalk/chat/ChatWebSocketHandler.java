@@ -24,10 +24,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final Map<Long, WebSocketSession> userSessions = Collections.synchronizedMap(new HashMap<>());
     @Getter
     private final Set<Long> onlineUsers = Collections.synchronizedSet(new HashSet<>());
-    // 新增：一个等待匹配的用户队列
     private final Queue<WebSocketSession> waitingUsers = new LinkedList<>();
+    // 新增：用来存储用户匹配的 userId 信息
+    private final Map<Long, Long> userMatches = new HashMap<>();
+
     @Autowired
     private ObjectMapper jacksonObjectMapper;
+
     @Autowired
     public ChatWebSocketHandler(ObjectMapper jacksonObjectMapper) {
         this.jacksonObjectMapper = jacksonObjectMapper;
@@ -46,6 +49,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             waitingUsers.remove(session);
         }
     }
+
     public void addSession(Long userId, WebSocketSession session) {
         userSessions.put(userId, session);
     }
@@ -66,17 +70,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         onlineUsers.remove(userId);
     }
 
-
-    @Autowired
-    private UserService userService;
-
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-
-        Long userId = (Long) session.getAttributes().get("userId");// 从session中获取用Id
-        userOnline(userId); // 用户上线
-        addSession(userId, session); // 将用户会话添加到管理中
-        // 将用户添加到等待匹配队列
+        Long userId = (Long) session.getAttributes().get("userId");
+        userOnline(userId);
+        addSession(userId, session);
         addToWaitingQueue(session);
     }
 
@@ -92,8 +90,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         logger.info("Received text message: " + payload);
 
         if (payload.equals("matchRequest")) {
-            // 尝试从等待队列中获取一个用户进行随机匹配
-
             logger.info("userId:{} matching...", userId);
 
             WebSocketSession matchedUserSession = findMatch(session);
@@ -101,11 +97,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
                 logger.info("userId:{} match successful", userId);
 
-                // 匹配成功，向两个用户发送消息
+                matchedUserId = (Long) matchedUserSession.getAttributes().get("userId");
+
+                // 将匹配成功的用户Id记录在后端
+                userMatches.put(userId, matchedUserId);
+                userMatches.put(matchedUserId, userId);  // 反向映射，确保双向匹配
+
+                // 向两个用户发送匹配成功消息
                 Map<String, Object> responseUser = new HashMap<>();
                 Map<String, Object> responseMatchedUser = new HashMap<>();
 
-                matchedUserId = (Long) matchedUserSession.getAttributes().get("userId");
                 responseUser.put("success", true);
                 sendResponse(session, responseUser);
 
@@ -127,41 +128,37 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String[] parts = payload.split(":", 2); // 分割消息内容
             if (parts.length == 2) {
                 String messageContent = parts[1];
-                // 只有在匹配成功的情况下才会有有效的 matchedUserId
 
-                    // 获取目标用户的会话
-                    WebSocketSession targetSession = getSession(matchedUserId);
+                // 获取目标用户的 userId
+                if (userMatches.containsKey(userId)) {
+                    Long targetUserId = userMatches.get(userId);
+                    WebSocketSession targetSession = getSession(targetUserId);
                     if (targetSession != null && targetSession.isOpen()) {
                         targetSession.sendMessage(new TextMessage("msg:" + messageContent));
                     } else {
                         Map<String, Object> responseUser = new HashMap<>();
                         responseUser.put("success", false);
                         sendResponse(session, responseUser);
+                    }
                 }
             }
         }
     }
-    private final Lock queueLock = new ReentrantLock(); // 用于同步等待队列的访问
 
-    // 随机匹配逻辑
     private WebSocketSession findMatch(WebSocketSession session) {
         WebSocketSession matchedUserSession = null;
-        queueLock.lock();  // 获取锁，防止其他线程同时访问队列
-        try {
+        synchronized (waitingUsers) {
             // 如果等待队列为空，返回null
-            if (waitingUsers.size()<2) {
+            if (waitingUsers.size() < 2) {
                 return null;
             }
             // 遍历等待队列，寻找有效的用户进行匹配
             while (!waitingUsers.isEmpty()) {
                 matchedUserSession = waitingUsers.poll();  // 从队列中取出第一个用户
-                // 判断匹配用户是否有效（会话是否开启，且不是当前会话）
                 if (matchedUserSession != null && matchedUserSession.isOpen() && matchedUserSession != session) {
                     break;  // 找到匹配用户，退出循环
                 }
             }
-        } finally {
-            queueLock.unlock();  // 释放锁，允许其他线程访问队列
         }
         return matchedUserSession;
     }
@@ -176,10 +173,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         Long userId = (Long) session.getAttributes().get("userId");
-        userOffline(userId); // 用户下线
+        userOffline(userId);  // 用户下线
         removeSession(userId); // 移除用户会话
 
         // 用户下线时，从等待队列中移除
         removeFromWaitingQueue(session);
+
+        // 如果用户退出，清除匹配关系
+        userMatches.remove(userId);
     }
 }
