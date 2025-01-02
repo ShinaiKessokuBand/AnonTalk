@@ -1,5 +1,6 @@
 package org.shinaikessokuband.anontalk.chat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.shinaikessokuband.anontalk.Response;
 import org.shinaikessokuband.anontalk.service.UserService;
@@ -22,6 +23,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     // 新增：一个等待匹配的用户队列
     private final Queue<WebSocketSession> waitingUsers = new LinkedList<>();
+    @Autowired
+    private ObjectMapper jacksonObjectMapper;
 
     // 方法：将用户加入等待队列
     private void addToWaitingQueue(WebSocketSession session) {
@@ -87,12 +90,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
                 matchedUserId = (Long) matchedUserSession.getAttributes().get("userId");
                 responseUser.put("success", true);
-                responseUser.put("matchedUserId", matchedUserId);
-                session.sendMessage(new TextMessage(Response.newSuccess(responseUser.toString()).toString()));
+                sendResponse(session, responseUser);
 
                 responseMatchedUser.put("success", true);
-                responseMatchedUser.put("matchedUserId", userId);
-                matchedUserSession.sendMessage(new TextMessage(Response.newSuccess(responseMatchedUser.toString()).toString()));
+                sendResponse(matchedUserSession, responseMatchedUser);
 
                 // 将匹配的两个用户从等待队列中移除
                 removeFromWaitingQueue(session);
@@ -100,8 +101,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             } else {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
-                // 如果没有匹配的用户，返回提示消息
-                session.sendMessage(new TextMessage(Response.newSuccess(response.toString()).toString()));
+                response.put("message", "No one is available for matching, please wait...");
+                sendResponse(session, response);  // 向当前用户发送提示消息
             }
         } else if (payload.startsWith("msg:")) {
             // 消息格式为 "msg:消息内容"
@@ -114,11 +115,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                     Map<String, Object> responseUser = new HashMap<>();
                     responseUser.put("success", true);
                     responseUser.put("messageContent", messageContent);
-                    targetSession.sendMessage(new TextMessage( Response.newSuccess(responseUser.toString()).toString()));
+                    sendResponse(targetSession, responseUser);
                 } else {
                     Map<String, Object> responseUser = new HashMap<>();
                     responseUser.put("success", false);
-                    session.sendMessage(new TextMessage( Response.newSuccess(responseUser.toString()).toString()));
+                    sendResponse(session, responseUser);
                 }
             }
         }
@@ -141,6 +142,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 return findMatch(session);
             }
         }
+    }
+
+    private void sendResponse(WebSocketSession session, Map<String, Object> responseData) throws Exception {
+        // 将 Map 转换为 JSON 字符串
+        String jsonResponse = jacksonObjectMapper.writeValueAsString(responseData);
+        // 发送给前端
+        session.sendMessage(new TextMessage(jsonResponse));
     }
 
     @Override
