@@ -3,6 +3,9 @@ package org.shinaikessokuband.anontalk.chat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.shinaikessokuband.anontalk.service.UserService;
+import org.shinaikessokuband.anontalk.service.UserServiceIm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -14,6 +17,7 @@ import java.util.*;
 
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
+
 
     @Getter
     private final Map<Long, WebSocketSession> userSessions = Collections.synchronizedMap(new HashMap<>());
@@ -75,25 +79,33 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
+        final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
+
         String payload = message.getPayload();
         Long userId = (Long) session.getAttributes().get("userId");
         Long matchedUserId = -1L;  // 初始值 -1 表示未匹配
 
+        logger.info("Received text message: " + payload);
+
         if (payload.equals("matchRequest")) {
             // 尝试从等待队列中获取一个用户进行随机匹配
+
+            logger.info("userId:{} matching...", userId);
+
             WebSocketSession matchedUserSession = findMatch(session);
             if (matchedUserSession != null) {
+
+                logger.info("userId:{} match successful", userId);
+
                 // 匹配成功，向两个用户发送消息
                 Map<String, Object> responseUser = new HashMap<>();
                 Map<String, Object> responseMatchedUser = new HashMap<>();
 
                 matchedUserId = (Long) matchedUserSession.getAttributes().get("userId");
                 responseUser.put("success", true);
-                responseUser.put("matchedUserId", matchedUserId); // 向当前用户返回匹配成功信息
                 sendResponse(session, responseUser);
 
                 responseMatchedUser.put("success", true);
-                responseMatchedUser.put("matchedUserId", userId); // 向匹配用户返回匹配成功信息
                 sendResponse(matchedUserSession, responseMatchedUser);
 
                 // 将匹配的两个用户从等待队列中移除
@@ -101,6 +113,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 removeFromWaitingQueue(matchedUserSession);
             } else {
                 // 没有匹配的用户，返回失败信息
+                logger.info("userId:{} match failed", userId);
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
                 sendResponse(session, response);  // 向当前用户发送提示消息
@@ -146,7 +159,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private void sendResponse(WebSocketSession session, Map<String, Object> responseData) throws Exception {
         // 将 Map 转换为 JSON 字符串
-        String jsonResponse = jacksonObjectMapper.writeValueAsString(responseData);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(responseData);
         // 发送给前端
         session.sendMessage(new TextMessage(jsonResponse));
     }

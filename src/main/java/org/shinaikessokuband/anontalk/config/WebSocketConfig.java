@@ -15,8 +15,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
     WebSocketHandler webSocketHandler;
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new ChatWebSocketHandler(), "/chat")
+        registry.addHandler(new ChatWebSocketHandler(), "/ws")
                 .setAllowedOrigins("*")// 设置允许的来源
-                .addInterceptors(new WebSocketHandshakeInterceptor());
+                .addInterceptors(new WebSocketHandshakeInterceptor())
+                .withSockJS();
     }
 }
