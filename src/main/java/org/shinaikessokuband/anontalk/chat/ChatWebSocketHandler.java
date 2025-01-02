@@ -2,8 +2,6 @@ package org.shinaikessokuband.anontalk.chat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import org.shinaikessokuband.anontalk.service.UserService;
-import org.shinaikessokuband.anontalk.service.UserServiceIm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -97,7 +94,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             logger.info("userId:{} matching...", userId);
 
             WebSocketSession matchedUserSession = findMatch(session);
-            if (matchedUserSession != null) {
+
+            if (matchedUserSession != null
+                    && matchedUserSession.isOpen()
+                    && matchedUserSession.getAttributes().get("userId") != userId) {
 
                 logger.info("userId:{} match successful", userId);
 
@@ -120,6 +120,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 // 将匹配的两个用户从等待队列中移除
                 removeFromWaitingQueue(session);
                 removeFromWaitingQueue(matchedUserSession);
+
             } else {
                 // 没有匹配的用户，返回失败信息
                 logger.info("userId:{} match failed", userId);
@@ -129,16 +130,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             }
             return;
         }
-            logger.debug("Enter message processing");
+            logger.info("Enter message processing");
             // 消息格式为 "msg:消息内容"
             String[] parts = payload.split(":", 2); // 分割消息内容
             if (parts.length == 2) {
                 String messageContent = parts[1];
-                logger.debug("MessageInfo: " + messageContent);
+                logger.info("MessageInfo: {}", messageContent);
                 // 获取目标用户的 userId
                 if (userMatches.containsKey(userId)) {
                     Long targetUserId = userMatches.get(userId);
-                    logger.debug("Prepare to send to: " + userId);
+                    logger.info("Prepare to send to: {}", userId);
                     WebSocketSession targetSession = getSession(targetUserId);
                     if (targetSession != null && targetSession.isOpen()) {
                         targetSession.sendMessage(new TextMessage("msg:" + messageContent));
@@ -150,7 +151,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 }
         }
     }
-    private final Lock queueLock = new ReentrantLock(); // 用于同步等待队列的访问
 
     // 随机匹配逻辑
     private WebSocketSession findMatch(WebSocketSession session) {
