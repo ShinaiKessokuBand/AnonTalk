@@ -2,7 +2,6 @@ package org.shinaikessokuband.anontalk.chat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import org.shinaikessokuband.anontalk.Response;
 import org.shinaikessokuband.anontalk.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -78,9 +77,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         String payload = message.getPayload();
         Long userId = (Long) session.getAttributes().get("userId");
-        Long matchedUserId = 1L;  // 假设初始匹配用户Id为 -1（表示未匹配）
+        Long matchedUserId = -1L;  // 初始值 -1 表示未匹配
 
-        if (payload.equals("findMatch")) {
+        if (payload.equals("matchRequest")) {
             // 尝试从等待队列中获取一个用户进行随机匹配
             WebSocketSession matchedUserSession = findMatch(session);
             if (matchedUserSession != null) {
@@ -90,18 +89,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
                 matchedUserId = (Long) matchedUserSession.getAttributes().get("userId");
                 responseUser.put("success", true);
+                responseUser.put("matchedUserId", matchedUserId); // 向当前用户返回匹配成功信息
                 sendResponse(session, responseUser);
 
                 responseMatchedUser.put("success", true);
+                responseMatchedUser.put("matchedUserId", userId); // 向匹配用户返回匹配成功信息
                 sendResponse(matchedUserSession, responseMatchedUser);
 
                 // 将匹配的两个用户从等待队列中移除
                 removeFromWaitingQueue(session);
                 removeFromWaitingQueue(matchedUserSession);
             } else {
+                // 没有匹配的用户，返回失败信息
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
-                response.put("message", "No one is available for matching, please wait...");
                 sendResponse(session, response);  // 向当前用户发送提示消息
             }
         } else if (payload.startsWith("msg:")) {
@@ -109,17 +110,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String[] parts = payload.split(":", 2); // 分割消息内容
             if (parts.length == 2) {
                 String messageContent = parts[1];
-                // 获取目标用户的会话
-                WebSocketSession targetSession = getSession(matchedUserId);
-                if (targetSession != null && targetSession.isOpen()) {
-                    Map<String, Object> responseUser = new HashMap<>();
-                    responseUser.put("success", true);
-                    responseUser.put("messageContent", messageContent);
-                    sendResponse(targetSession, responseUser);
-                } else {
-                    Map<String, Object> responseUser = new HashMap<>();
-                    responseUser.put("success", false);
-                    sendResponse(session, responseUser);
+                // 只有在匹配成功的情况下才会有有效的 matchedUserId
+
+                    // 获取目标用户的会话
+                    WebSocketSession targetSession = getSession(matchedUserId);
+                    if (targetSession != null && targetSession.isOpen()) {
+                        targetSession.sendMessage(new TextMessage("msg:" + messageContent));
+                    } else {
+                        Map<String, Object> responseUser = new HashMap<>();
+                        responseUser.put("success", false);
+                        sendResponse(session, responseUser);
                 }
             }
         }
