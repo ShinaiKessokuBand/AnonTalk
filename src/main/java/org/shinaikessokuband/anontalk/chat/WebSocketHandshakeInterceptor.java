@@ -21,7 +21,7 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
             userId = userId.split("=")[1];  // 提取用户 ID
             try {
                 // 将用户 ID 存储到 WebSocket 会话的属性中
-                attributes.put("userId", Integer.parseInt(userId));
+                attributes.put("userId", Long.parseLong(userId));
             } catch (NumberFormatException e) {
                 // 如果解析失败，可以抛出异常或处理无效的用户 ID
                 return false;

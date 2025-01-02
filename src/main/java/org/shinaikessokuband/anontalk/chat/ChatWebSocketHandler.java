@@ -18,7 +18,6 @@ import java.util.*;
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-
     @Getter
     private final Map<Long, WebSocketSession> userSessions = Collections.synchronizedMap(new HashMap<>());
     @Getter
@@ -28,6 +27,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final Queue<WebSocketSession> waitingUsers = new LinkedList<>();
     @Autowired
     private ObjectMapper jacksonObjectMapper;
+    @Autowired
+    public ChatWebSocketHandler(ObjectMapper jacksonObjectMapper) {
+        this.jacksonObjectMapper = jacksonObjectMapper;
+    }
 
     // 方法：将用户加入等待队列
     private void addToWaitingQueue(WebSocketSession session) {
@@ -159,8 +162,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private void sendResponse(WebSocketSession session, Map<String, Object> responseData) throws Exception {
         // 将 Map 转换为 JSON 字符串
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writeValueAsString(responseData);
+        String jsonResponse = jacksonObjectMapper.writeValueAsString(responseData);
         // 发送给前端
         session.sendMessage(new TextMessage(jsonResponse));
     }
