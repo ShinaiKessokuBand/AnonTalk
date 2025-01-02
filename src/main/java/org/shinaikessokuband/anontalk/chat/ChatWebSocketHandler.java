@@ -14,6 +14,8 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
@@ -22,7 +24,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final Map<Long, WebSocketSession> userSessions = Collections.synchronizedMap(new HashMap<>());
     @Getter
     private final Set<Long> onlineUsers = Collections.synchronizedSet(new HashSet<>());
-
     // 新增：一个等待匹配的用户队列
     private final Queue<WebSocketSession> waitingUsers = new LinkedList<>();
     @Autowired
@@ -140,24 +141,29 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             }
         }
     }
+    private final Lock queueLock = new ReentrantLock(); // 用于同步等待队列的访问
 
     // 随机匹配逻辑
     private WebSocketSession findMatch(WebSocketSession session) {
-        synchronized (waitingUsers) {
+        WebSocketSession matchedUserSession = null;
+        queueLock.lock();  // 获取锁，防止其他线程同时访问队列
+        try {
             // 如果等待队列为空，返回null
-            if (waitingUsers.isEmpty()) {
+            if (waitingUsers.size()<2) {
                 return null;
             }
-            // 找到匹配的用户并从队列中移除
-            WebSocketSession matchedUserSession = waitingUsers.poll();
-            // 判断匹配用户是否有效（会话是否开启等）
-            if (matchedUserSession != null && matchedUserSession.isOpen() && matchedUserSession != session) {
-                return matchedUserSession;
-            } else {
-                // 如果匹配的用户无效，继续查找队列中的下一个用户
-                return findMatch(session);
+            // 遍历等待队列，寻找有效的用户进行匹配
+            while (!waitingUsers.isEmpty()) {
+                matchedUserSession = waitingUsers.poll();  // 从队列中取出第一个用户
+                // 判断匹配用户是否有效（会话是否开启，且不是当前会话）
+                if (matchedUserSession != null && matchedUserSession.isOpen() && matchedUserSession != session) {
+                    break;  // 找到匹配用户，退出循环
+                }
             }
+        } finally {
+            queueLock.unlock();  // 释放锁，允许其他线程访问队列
         }
+        return matchedUserSession;
     }
 
     private void sendResponse(WebSocketSession session, Map<String, Object> responseData) throws Exception {
