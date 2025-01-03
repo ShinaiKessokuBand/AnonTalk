@@ -13,4 +13,10 @@ public class RoomDto {
     public void setRoomName(String roomName) {
         this.roomName = roomName;
     }
+
+    public RoomDto( String roomName ) {
+        this.roomName = roomName;
+    }
+
+    public RoomDto() {}
 }

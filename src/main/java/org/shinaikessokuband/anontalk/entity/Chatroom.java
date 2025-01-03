@@ -21,7 +21,16 @@ public class Chatroom {
     public void setRname(String rname) {
         this.roomName = rname;
     }
+
     public String getRname() {
         return roomName;
+    }
+
+    public void setUsers(ArrayList<User> users) {
+        this.users = users;
+    }
+
+    public ArrayList<User> getUsers() {
+        return users;
     }
 }
