@@ -14,8 +14,8 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 自增主键
     private Integer id;
 
-    @Column(name="user_name")
-    private String author;
+    @Column(name="userid")
+    private Long author;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -32,8 +32,11 @@ public class Post {
     @Column(name="content_pre")
     private String contentPre;
 
-    public Post(String author, String title, String content) {
-        this.author = author;
+    @Column(name="likes")
+    private int likes;
+
+    public Post(String title, String content, Long userid) {
+        this.author = userid;
         this.title = title;
         this.content = content;
     }

@@ -9,8 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class SettingController {
-    @Autowired
+    final
     SettingService settingService;
+
+    public SettingController(SettingService settingService) {
+        this.settingService = settingService;
+    }
 
     /*@PutMapping("/api/users/{userId}")
     public Response<String> updateUser(@PathVariable Integer userId, @RequestParam(required = false) String username,

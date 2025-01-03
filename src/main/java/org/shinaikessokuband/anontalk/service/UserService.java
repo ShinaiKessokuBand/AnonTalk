@@ -22,7 +22,11 @@ public interface UserService {
     boolean logout(String userName);
 
     @Transactional
-    Integer registerNewUser(String phone, String username, String password);
+    Integer registerNewUser(
+            String phone,
+            String username,
+            String password
+    );
 
     List<User> getAllUsers();
 
@@ -32,7 +36,16 @@ public interface UserService {
 
     void activateUser(String userName);
 
-    int updateUserInfo(int userid, String username, String gender, String hobbies);
+    int updateUserInfo(
+            int userid,
+            String username,
+            String gender,
+            String hobbies
+    );
 
-    int updateUserSecurity(int userid, String password, String phone);
+    int updateUserSecurity(
+            int userid,
+            String password,
+            String phone
+    );
 }

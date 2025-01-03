@@ -9,8 +9,11 @@ import java.io.IOException;
 @Service
 public class MessageServiceIm implements MessageService {
 
-    @Autowired
-    private MessageRepository messageRepository;
+    private final MessageRepository messageRepository;
+
+    public MessageServiceIm(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
+    }
 
     @Override
     public void exportChatHistory(String filePath) throws IOException {

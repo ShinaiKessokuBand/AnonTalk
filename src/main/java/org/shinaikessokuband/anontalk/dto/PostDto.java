@@ -10,13 +10,13 @@ public class PostDto {
 
     private Integer id;
 
-    private String author;
+    private Long author;
 
     private String title;
 
     private String content;
 
-    public PostDto(Integer id, String author, String title, String content) {
+    public PostDto(Integer id, String title, String content, Long author) {
         this.id = id;
         this.author = author;
         this.title = title;

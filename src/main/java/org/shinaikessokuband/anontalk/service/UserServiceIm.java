@@ -22,8 +22,12 @@ import java.util.*;
 public class UserServiceIm implements UserService {
 
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public UserServiceIm(UserRepository userRepository, DataSource dataSource) {
+        this.userRepository = userRepository;
+        this.dataSource = dataSource;
+    }
 
     @Override
     public UserDto getUserByAccount(String userName) {
@@ -50,8 +54,7 @@ public class UserServiceIm implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceIm.class);
 
-    @Autowired
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     @Override
     public int login(String username, String password) {
@@ -64,7 +67,7 @@ public class UserServiceIm implements UserService {
                 return -1;
             }
         } catch (SQLException e) {
-            logger.error("Database connection failed: " + e.getMessage());
+            logger.error("Database connection failed: {}", e.getMessage());
             return -1;
         }
 
@@ -74,6 +77,10 @@ public class UserServiceIm implements UserService {
         if (!users.isEmpty()) {
             User user = users.get(0); // Assuming username is unique and taking the first match
             if (user.getPassword().equals(password)) {
+                if(user.isBanned()){
+                    logger.warn("User with username: {} is banned.", username);
+                    return -1;
+                }
                 user.setOnline(true);
                 logger.info("Login successful for username: {}", username);
                 return user.getUserId();
@@ -97,6 +104,10 @@ public class UserServiceIm implements UserService {
         return false;
     }
 
+
+    /*
+    Transactional注解表示该方法需要在事务中执行，如果方法执行成功，则提交事务，否则回滚事务，撤销所做的更改，保证数据一致性。
+     */
     @Transactional
     @Override
     public Integer registerNewUser(String phone, String username, String password) {
@@ -105,7 +116,7 @@ public class UserServiceIm implements UserService {
         userDto.setUsername(username);
         userDto.setPassword(password);
         if(!userRepository.findByUsername(username).isEmpty()){
-            logger.error("Username: " + username + " has been taken.");
+            logger.error("Username: {} has been taken.", username);
             return -1;
         }
         User user = userRepository.save(UserConverter.convertUserDto(userDto));
@@ -152,7 +163,7 @@ public class UserServiceIm implements UserService {
     public int updateUserInfo(int userid, String username, String gender, String hobbies) {
         List<User> result = userRepository.findByUserId(userid);
         if (result.isEmpty()) {
-            logger.error("User with id: " + userid + " does not exist.");
+            logger.error("User with id: {} does not exist.", userid);
             return -1;
         }
         User user = result.getFirst();
@@ -169,7 +180,7 @@ public class UserServiceIm implements UserService {
     public int updateUserSecurity(int userid, String password, String phone) {
         List<User> result = userRepository.findByUserId(userid);
         if (result.isEmpty()) {
-            logger.error("User with id: " + userid + " does not exist.");
+            logger.error("User with id: {} does not exist.", userid);
             return -1;
         }
         User user = result.getFirst();

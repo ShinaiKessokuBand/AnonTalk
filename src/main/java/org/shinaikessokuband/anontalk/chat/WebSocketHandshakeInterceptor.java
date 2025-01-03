@@ -8,6 +8,11 @@ import java.util.Map;
 
 public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
+
+    /*
+    函数名：beforeHandshake
+    作用：在 WebSocket 握手之前执行，检查参数是否合法，将用户 ID 存储到 WebSocket 会话的属性中并准予连接
+     */
     @Override
     public boolean beforeHandshake(
             ServerHttpRequest request,

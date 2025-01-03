@@ -15,11 +15,14 @@ import java.time.LocalDateTime;
 @Service
 public class ChatService implements IChatService{
 
-    @Autowired
-    private MessageRepository messageRepository;
+    private final MessageRepository messageRepository;
 
-    @Autowired
-    private RoomRepository roomRepository;
+    private final RoomRepository roomRepository;
+
+    public ChatService(MessageRepository messageRepository, RoomRepository roomRepository) {
+        this.messageRepository = messageRepository;
+        this.roomRepository = roomRepository;
+    }
 
     @Override
     public Message saveMessage(MessageDto messageDto){

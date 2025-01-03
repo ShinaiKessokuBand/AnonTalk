@@ -67,6 +67,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         onlineUsers.remove(userId);
     }
 
+    /*
+        * WebSocket 连接建立后的处理逻辑
+        * 1. 获取用户 ID
+        * 2. 将用户添加到在线用户列表
+        * 3. 将用户会话添加到管理中
+        * 4. 将用户添加到等待匹配队列
+     */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
@@ -77,6 +84,18 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         addToWaitingQueue(session);
     }
 
+    /*
+    函数名：handleTextMessage
+    作用：
+        * 处理前端发送的消息
+        * 1. 如果消息内容为 "matchRequest"，则尝试匹配用户
+            * 1.1. 如果没有匹配的用户，返回失败信息
+            * 1.2. 如果匹配成功，向两个用户发送匹配成功消息,将匹配的两个用户从等待队列中移除
+        * 2. 如果消息内容为 "msg:消息内容"，则将消息发送给匹配的用户
+    参数：
+        * WebSocketSession session：WebSocket 会话
+        * TextMessage message：消息命令内容
+     */
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
@@ -86,7 +105,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         Long userId = (Long) session.getAttributes().get("userId");
         Long matchedUserId = -1L;  // 初始值 -1 表示未匹配
 
-        logger.info("Backend Received text message from " + userId + ": " + payload);
 
         if (payload.equals("matchRequest")) {
             // 尝试从等待队列中获取一个用户进行随机匹配
@@ -139,10 +157,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 // 获取目标用户的 userId
                 if (userMatches.containsKey(userId)) {
                     Long targetUserId = userMatches.get(userId);
-                    logger.info("Prepare to send to: {}", userId);
                     WebSocketSession targetSession = getSession(targetUserId);
                     if (targetSession != null && targetSession.isOpen()) {
                         targetSession.sendMessage(new TextMessage("msg:" + messageContent));
+                        logger.info("message from {} to {}", userId, targetUserId);
                     } else {
                         Map<String, Object> responseUser = new HashMap<>();
                         responseUser.put("success", false);
@@ -152,7 +170,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    // 随机匹配逻辑
+    /*
+    匹配逻辑
+    1. 从等待队列中取出第一个用户
+    2. 遍历等待队列，寻找有效的用户进行匹配
+     */
     private WebSocketSession findMatch(WebSocketSession session) {
         WebSocketSession matchedUserSession = null;
         synchronized (waitingUsers) {
@@ -171,6 +193,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         return matchedUserSession;
     }
 
+    /*
+    函数名：sendResponse
+    作用：WebSocket此处仅能处理字符串消息，此处将 Map 转换为 JSON 字符串后发送给前端，由前端执行 JSON.parse 解析
+    参数：
+        * WebSocketSession session：WebSocket 会话
+        * Map<String, Object> responseData：响应数据
+     */
     private void sendResponse(WebSocketSession session, Map<String, Object> responseData) throws Exception {
         // 将 Map 转换为 JSON 字符串
         String jsonResponse = jacksonObjectMapper.writeValueAsString(responseData);

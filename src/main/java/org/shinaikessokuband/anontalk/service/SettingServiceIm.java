@@ -9,8 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SettingServiceIm implements SettingService{
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public SettingServiceIm(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional
