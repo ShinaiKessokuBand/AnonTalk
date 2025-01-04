@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.*;
@@ -200,7 +198,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         * WebSocketSession session：WebSocket 会话
         * Map<String, Object> responseData：响应数据
      */
-    private void sendResponse(WebSocketSession session, Map<String, Object> responseData) throws Exception {
+    private void sendResponse(WebSocketSession session,
+                              Map<String, Object> responseData) throws Exception
+    {
         // 将 Map 转换为 JSON 字符串
         String jsonResponse = jacksonObjectMapper.writeValueAsString(responseData);
         // 发送给前端
@@ -208,7 +208,50 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void handleTransportError(WebSocketSession session,
+                                     Throwable exception) throws Exception
+    {
+
+        final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
+
+        try {
+            logger.error("Transport error", exception);
+        }catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void handleBinaryMessage(WebSocketSession session,
+                                    BinaryMessage message)
+    {
+        final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
+
+        try{
+            super.handleBinaryMessage(session, message);
+        }catch(Exception e){
+            logger.info("WebSocket handleBinaryMessage异常",e);
+        }
+
+    }
+
+    @Override
+    public void handlePongMessage(WebSocketSession session,
+                                  PongMessage pongMessage)
+    {
+        final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
+
+        try{
+            super.handlePongMessage(session, pongMessage);
+        }catch(Exception e){
+            logger.info("WebSocket handlePongMessage异常:",e);
+        }
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session,
+                                      CloseStatus status) throws Exception
+    {
         Long userId = (Long) session.getAttributes().get("userId");
         userOffline(userId);  // 用户下线
         removeSession(userId); // 移除用户会话

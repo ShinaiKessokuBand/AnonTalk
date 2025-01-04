@@ -36,4 +36,11 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
         return true;
     }
 
+    @Override
+    public void afterHandshake(ServerHttpRequest request,
+                               ServerHttpResponse response,
+                               WebSocketHandler handler,
+                               Exception ex) {
+        //
+    }
 }
