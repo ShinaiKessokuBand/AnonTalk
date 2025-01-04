@@ -20,7 +20,7 @@ public class PostController {
     public PostController(PostService postService) {
         this.postService = postService;
     }
-    private Map<Integer, Integer> commentLikes = new HashMap<>();
+    private final Map<Integer, Integer> commentLikes = new HashMap<>();
     /**
      * 创建一个新的帖子。
      *
@@ -42,11 +42,20 @@ public class PostController {
             Long userid = Long.parseLong((String) post.get("userid"));
             postService.createPost(title, content, userid);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("errorMsg", e.getMessage());
+            response.put(
+                    "success",
+                    false
+            );
+            response.put(
+                    "errorMsg",
+                    e.getMessage()
+            );
             return Response.newError(response);
         }
-        response.put("success", true);
+        response.put(
+                "success",
+                true
+        );
         return Response.newSuccess(response);
     }
 
@@ -148,14 +157,22 @@ public class PostController {
         try {
             postService.unlikePost(postId);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("errorMsg", e.getMessage());
+            response.put(
+                    "success",
+                    false
+            );
+            response.put(
+                    "errorMsg",
+                    e.getMessage()
+            );
             return Response.newError(response);
         }
-        response.put("success", true);
+        response.put(
+                "success",
+                true);
         return Response.newSuccess(response);
     }
-    private Map<Integer, List<String>> comments = new HashMap<>();
+    private final Map<Integer, List<String>> comments = new HashMap<>();
 
     /**
      * 添加评论到指定帖子。
@@ -170,14 +187,23 @@ public class PostController {
      * @return 返回操作结果的响应，成功或失败
      */
     @PostMapping("/api/posts/{postId}/comments")
-    public Response<Map<String, Object>> addComment(@PathVariable Integer postId, @RequestBody Map<String, Object> comment) {
+    public Response<Map<String, Object>> addComment(
+            @PathVariable Integer postId,
+            @RequestBody Map<String, Object> comment
+    ) {
         Map<String, Object> response = new HashMap<>();
         try {
             String content = (String) comment.get("content");
             comments.computeIfAbsent(postId, k -> new ArrayList<>()).add(content);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("errorMsg", e.getMessage());
+            response.put(
+                    "success",
+                    false
+            );
+            response.put(
+                    "errorMsg",
+                    e.getMessage()
+            );
             return Response.newError(response);
         }
         response.put("success", true);
@@ -199,6 +225,7 @@ public class PostController {
         List<String> postComments = comments.getOrDefault(postId, new ArrayList<>());
         return Response.newSuccess(postComments);
     }
+
     /**
      * 删除指定帖子的指定评论。
      *
@@ -222,11 +249,20 @@ public class PostController {
                 throw new IndexOutOfBoundsException("Comment not found");
             }
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("errorMsg", e.getMessage());
+            response.put(
+                    "success",
+                    false
+            );
+            response.put(
+                    "errorMsg",
+                    e.getMessage()
+            );
             return Response.newError(response);
         }
-        response.put("success", true);
+        response.put(
+                "success",
+                true
+        );
         return Response.newSuccess(response);
     }
 
@@ -254,11 +290,20 @@ public class PostController {
                 throw new IndexOutOfBoundsException("Comment not found");
             }
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("errorMsg", e.getMessage());
+            response.put(
+                    "success",
+                    false
+            );
+            response.put(
+                    "errorMsg",
+                    e.getMessage()
+            );
             return Response.newError(response);
         }
-        response.put("success", true);
+        response.put(
+                "success",
+                true
+        );
         return Response.newSuccess(response);
     }
 
@@ -280,13 +325,25 @@ public class PostController {
         try {
             int commentId = postId * 1000 + commentIndex; // Generate a unique ID for the comment
             int likes = commentLikes.getOrDefault(commentId, 0);
-            response.put("likes", likes);
+            response.put(
+                    "likes",
+                    likes
+            );
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("errorMsg", e.getMessage());
+            response.put(
+                    "success",
+                    false
+            );
+            response.put(
+                    "errorMsg",
+                    e.getMessage()
+            );
             return Response.newError(response);
         }
-        response.put("success", true);
+        response.put(
+                "success",
+                true
+        );
         return Response.newSuccess(response);
     }
 }

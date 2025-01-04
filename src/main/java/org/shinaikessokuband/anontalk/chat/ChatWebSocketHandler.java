@@ -208,7 +208,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         session.sendMessage(new TextMessage(jsonResponse));
     }
 
-    @Override
 /**
  * 处理WebSocket传输错误。
  *
@@ -216,6 +215,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
  * @param exception 发生的异常
  * @throws Exception 可能抛出的异常
  */
+    @Override
     public void handleTransportError(WebSocketSession session,
                                      Throwable exception) throws Exception {
 
@@ -232,13 +232,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    @Override
+
 /**
  * 处理接收到的二进制消息。
  *
  * @param session 当前的WebSocket会话
  * @param message 接收到的二进制消息
  */
+    @Override
     public void handleBinaryMessage(WebSocketSession session,
                                     BinaryMessage message) {
 
@@ -255,13 +256,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    @Override
+
 /**
  * 处理接收到的Pong消息。
  *
  * @param session 当前的WebSocket会话
  * @param pongMessage 接收到的Pong消息
  */
+    @Override
     public void handlePongMessage(WebSocketSession session,
                                   PongMessage pongMessage) {
 
@@ -278,7 +280,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    @Override
+
 /**
  * 在WebSocket连接关闭后执行的操作。
  *
@@ -286,6 +288,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
  * @param status 关闭状态
  * @throws Exception 可能抛出的异常
  */
+    @Override
     public void afterConnectionClosed(WebSocketSession session,
                                       CloseStatus status) throws Exception {
 

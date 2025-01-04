@@ -83,17 +83,33 @@ public class UserDto {
     // equals and hashCode methods
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         UserDto userDto = (UserDto) o;
 
-        if (isOnline != userDto.isOnline) return false;
-        if (!userId.equals(userDto.userId)) return false;
-        if (!password.equals(userDto.password)) return false;
-        if (!confirmPassword.equals(userDto.confirmPassword)) return false;
-        if (!username.equals(userDto.username)) return false;
-        if (!email.equals(userDto.email)) return false;
+        if (isOnline != userDto.isOnline) {
+            return false;
+        }
+        if (!userId.equals(userDto.userId)) {
+            return false;
+        }
+        if (!password.equals(userDto.password)) {
+            return false;
+        }
+        if (!confirmPassword.equals(userDto.confirmPassword)) {
+            return false;
+        }
+        if (!username.equals(userDto.username)) {
+            return false;
+        }
+        if (!email.equals(userDto.email)) {
+            return false;
+        }
         return phoneNumber.equals(userDto.phoneNumber);
     }
 

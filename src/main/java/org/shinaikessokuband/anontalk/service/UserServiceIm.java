@@ -42,7 +42,7 @@ public class UserServiceIm implements UserService {
     public UserDto getUserByAccount(String userName) {
         List<User> res = userRepository.findByUsername(userName); // 根据用户名查找用户
         if (!res.isEmpty()) {
-            return UserConverter.convertUser(res.get(0)); // 转换为 UserDto 并返回
+            return UserConverter.convertUser(res.getFirst()); // 转换为 UserDto 并返回
         }
         return null; // 如果未找到用户，返回 null
     }
@@ -52,7 +52,7 @@ public class UserServiceIm implements UserService {
         List<User> res = userRepository.findByUsername(userName); // 查找用户
 
         if (res != null && !res.isEmpty()) {
-            User user = res.get(0); // 获取第一个用户
+            User user = res.getFirst(); // 获取第一个用户
             userRepository.deleteByUserId(user.getUserId()); // 根据用户 ID 删除用户
         } else {
             throw new IllegalArgumentException("账户: " + userName + " 不存在"); // 账户不存在异常
@@ -78,7 +78,7 @@ public class UserServiceIm implements UserService {
         logger.info("尝试使用用户名登录: {}", username);
         List<User> users = userRepository.findByUsername(username); // 查找用户
         if (!users.isEmpty()) {
-            User user = users.get(0); // 假设用户名唯一，获取第一个匹配的用户
+            User user = users.getFirst(); // 假设用户名唯一，获取第一个匹配的用户
             if (user.getPassword().equals(password)) { // 验证密码
                 if (user.isBanned()) { // 检查用户是否被封禁
                     logger.warn("用户名为: {} 的用户已被封禁。", username);
@@ -101,7 +101,7 @@ public class UserServiceIm implements UserService {
     public boolean logout(String userName) {
         List<User> users = userRepository.findByUsername(userName); // 查找用户
         if (!users.isEmpty()) {
-            User user = users.get(0); // 获取第一个用户
+            User user = users.getFirst(); // 获取第一个用户
             user.setOnline(false); // 设置用户为离线状态
             userRepository.save(user); // 保存更改
             return true; // 登出成功
@@ -154,7 +154,7 @@ public class UserServiceIm implements UserService {
     public void banUser(String userName) {
         List<User> users = userRepository.findByUsername(userName); // 查找用户
         if (!users.isEmpty()) {
-            User user = users.get(0); // 获取第一个用户
+            User user = users.getFirst(); // 获取第一个用户
             user.setBanned(true); // 设置用户为封禁状态
             userRepository.save(user); // 保存用户状态
         }
@@ -164,7 +164,7 @@ public class UserServiceIm implements UserService {
     public void activateUser(String userName) {
         List<User> users = userRepository.findByUsername(userName); // 查找用户
         if (!users.isEmpty()) {
-            User user = users.get(0); // 获取第一个用户
+            User user = users.getFirst(); // 获取第一个用户
             user.setBanned(false); // 设置用户为解封状态
             userRepository.save(user); // 保存用户状态
         }

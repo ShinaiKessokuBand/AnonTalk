@@ -41,6 +41,6 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
                                ServerHttpResponse response,
                                WebSocketHandler handler,
                                Exception ex) {
-        //
+        super.afterHandshake(request, response, handler, ex);
     }
 }

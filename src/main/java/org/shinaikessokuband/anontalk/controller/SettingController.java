@@ -16,14 +16,25 @@ public class SettingController {
         this.settingService = settingService;
     }
 
-    /*@PutMapping("/api/users/{userId}")
-    public Response<String> updateUser(@PathVariable Integer userId, @RequestParam(required = false) String username,
-                                              @RequestParam(required = false) String email, @RequestParam(required = false) String password,
-                                              @RequestParam(required = false) String hobbies, @RequestParam(required = false) String phoneNumber,
-                                              Model model) {
-        model.addAttribute("updateUser", settingService.updateStudentByAccount(userId,username,email,password,hobbies,phoneNumber));
+    /*@PutMapping("/api/users/{userId}")*/
+    public Response<String> updateUser(@PathVariable Integer userId,
+                                       @RequestParam(required = false) String username,
+                                       @RequestParam(required = false) String email,
+                                       @RequestParam(required = false) String password,
+                                       @RequestParam(required = false) String hobbies,
+                                       @RequestParam(required = false) String phoneNumber,
+                                       Model model) {
+        model.addAttribute("updateUser",
+                settingService.updateStudentByAccount(
+                        userId,
+                        username,
+                        email,
+                        password,
+                        hobbies,
+                        phoneNumber
+                ));
         return Response.newSuccess("/api/users");
-    }*/
+    }
 
     /**
      * 根据用户名获取用户信息。
