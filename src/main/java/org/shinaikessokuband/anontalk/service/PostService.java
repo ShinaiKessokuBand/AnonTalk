@@ -14,4 +14,8 @@ public interface PostService {
     Post getPostById(Integer postId);
 
     void deletePostById(Integer postId);
+
+    void likePost(Integer postId);
+
+    void unlikePost(Integer postId);
 }

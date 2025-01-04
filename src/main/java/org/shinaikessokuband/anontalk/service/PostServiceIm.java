@@ -53,4 +53,18 @@ public class PostServiceIm implements PostService {
     public void deletePostById(Integer postId){
         postRepository.deleteById(postId);
     }
+
+    @Override
+    public void likePost(Integer postId) {
+        Post post = getPostById(postId);
+        post.setLikes(post.getLikes() + 1);
+        postRepository.save(post);
+    }
+
+    @Override
+    public void unlikePost(Integer postId) {
+        Post post = getPostById(postId);
+        post.setLikes(post.getLikes() + 1);
+        postRepository.save(post);
+    }
 }

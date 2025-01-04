@@ -104,4 +104,54 @@ public class PostController {
         response.put("success", true);
         return Response.newSuccess(response);
     }
+
+    /**
+     * 根据帖子 ID 设置喜爱帖子。
+     *
+     * 该方法接收帖子的 ID，喜爱该帖子。如果发生错误，返回错误响应。
+     *
+     * 请求的 URL：/api/posts/{postId}
+     * 请求方法：PUT
+     *
+     * @param postId 帖子的唯一标识符，作为路径参数传入
+     * @return 返回操作结果的响应，成功或失败
+     */
+    @PutMapping("/api/posts/{postId}")
+    public Response<Map<String, Object>> likePost(@PathVariable Integer postId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            postService.likePost(postId);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("errorMsg", e.getMessage());
+            return Response.newError(response);
+        }
+        response.put("success", true);
+        return Response.newSuccess(response);
+    }
+
+    /**
+     * 根据帖子 ID 设置不喜爱帖子。
+     *
+     * 该方法接收帖子的 ID，不喜爱该帖子。如果发生错误，返回错误响应。
+     *
+     * 请求的 URL：/api/posts/{postId}
+     * 请求方法：PUT
+     *
+     * @param postId 帖子的唯一标识符，作为路径参数传入
+     * @return 返回操作结果的响应，成功或失败
+     */
+    @PutMapping("/api/posts/{postId}")
+    public Response<Map<String, Object>> unlikePost(@PathVariable Integer postId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            postService.unlikePost(postId);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("errorMsg", e.getMessage());
+            return Response.newError(response);
+        }
+        response.put("success", true);
+        return Response.newSuccess(response);
+    }
 }
