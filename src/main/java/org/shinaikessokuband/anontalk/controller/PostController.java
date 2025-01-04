@@ -116,7 +116,7 @@ public class PostController {
      * @param postId 帖子的唯一标识符，作为路径参数传入
      * @return 返回操作结果的响应，成功或失败
      */
-    @PutMapping("/api/posts/{postId}")
+    /*@PutMapping("/api/posts/{postId}")
     public Response<Map<String, Object>> likePost(@PathVariable Integer postId) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -128,7 +128,7 @@ public class PostController {
         }
         response.put("success", true);
         return Response.newSuccess(response);
-    }
+    }*/
 
     /**
      * 根据帖子 ID 设置不喜爱帖子。
@@ -141,7 +141,7 @@ public class PostController {
      * @param postId 帖子的唯一标识符，作为路径参数传入
      * @return 返回操作结果的响应，成功或失败
      */
-    @PutMapping("/api/posts/{postId}")
+    /*@PutMapping("/api/posts/{postId}")
     public Response<Map<String, Object>> unlikePost(@PathVariable Integer postId) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -153,5 +153,5 @@ public class PostController {
         }
         response.put("success", true);
         return Response.newSuccess(response);
-    }
+    }*/
 }
