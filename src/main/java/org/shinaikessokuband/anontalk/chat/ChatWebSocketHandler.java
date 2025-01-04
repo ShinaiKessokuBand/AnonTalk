@@ -27,6 +27,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Autowired
     private ObjectMapper jacksonObjectMapper;
+
     @Autowired
     public ChatWebSocketHandler(ObjectMapper jacksonObjectMapper) {
         this.jacksonObjectMapper = jacksonObjectMapper;
@@ -45,6 +46,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             waitingUsers.remove(session);
         }
     }
+
     public void addSession(Long userId, WebSocketSession session) {
         userSessions.put(userId, session);
     }
@@ -66,11 +68,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     /*
-        * WebSocket 连接建立后的处理逻辑
-        * 1. 获取用户 ID
-        * 2. 将用户添加到在线用户列表
-        * 3. 将用户会话添加到管理中
-        * 4. 将用户添加到等待匹配队列
+     * WebSocket 连接建立后的处理逻辑
+     * 1. 获取用户 ID
+     * 2. 将用户添加到在线用户列表
+     * 3. 将用户会话添加到管理中
+     * 4. 将用户添加到等待匹配队列
      */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -146,25 +148,25 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             }
             return;
         }
-            logger.info("Enter message processing");
-            // 消息格式为 "msg:消息内容"
-            String[] parts = payload.split(":", 2); // 分割消息内容
-            if (parts.length == 2) {
-                String messageContent = parts[1];
-                logger.info("MessageInfo: {}", messageContent);
-                // 获取目标用户的 userId
-                if (userMatches.containsKey(userId)) {
-                    Long targetUserId = userMatches.get(userId);
-                    WebSocketSession targetSession = getSession(targetUserId);
-                    if (targetSession != null && targetSession.isOpen()) {
-                        targetSession.sendMessage(new TextMessage("msg:" + messageContent));
-                        logger.info("message from {} to {}", userId, targetUserId);
-                    } else {
-                        Map<String, Object> responseUser = new HashMap<>();
-                        responseUser.put("success", false);
-                        sendResponse(session, responseUser);
-                    }
+        logger.info("Enter message processing");
+        // 消息格式为 "msg:消息内容"
+        String[] parts = payload.split(":", 2); // 分割消息内容
+        if (parts.length == 2) {
+            String messageContent = parts[1];
+            logger.info("MessageInfo: {}", messageContent);
+            // 获取目标用户的 userId
+            if (userMatches.containsKey(userId)) {
+                Long targetUserId = userMatches.get(userId);
+                WebSocketSession targetSession = getSession(targetUserId);
+                if (targetSession != null && targetSession.isOpen()) {
+                    targetSession.sendMessage(new TextMessage("msg:" + messageContent));
+                    logger.info("message from {} to {}", userId, targetUserId);
+                } else {
+                    Map<String, Object> responseUser = new HashMap<>();
+                    responseUser.put("success", false);
+                    sendResponse(session, responseUser);
                 }
+            }
         }
     }
 
@@ -199,8 +201,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         * Map<String, Object> responseData：响应数据
      */
     private void sendResponse(WebSocketSession session,
-                              Map<String, Object> responseData) throws Exception
-    {
+                              Map<String, Object> responseData) throws Exception {
         // 将 Map 转换为 JSON 字符串
         String jsonResponse = jacksonObjectMapper.writeValueAsString(responseData);
         // 发送给前端
@@ -208,58 +209,99 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
+/**
+ * 处理WebSocket传输错误。
+ *
+ * @param session 当前的WebSocket会话
+ * @param exception 发生的异常
+ * @throws Exception 可能抛出的异常
+ */
     public void handleTransportError(WebSocketSession session,
-                                     Throwable exception) throws Exception
-    {
+                                     Throwable exception) throws Exception {
 
+        // 创建日志记录器，用于记录错误信息
         final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
 
+        // 使用try-catch结构来处理潜在的异常
         try {
+            // 记录传输错误
             logger.error("Transport error", exception);
-        }catch (Exception e) {
+        } catch (Exception e) {
+            // 如果在记录错误时发生异常，记录该异常信息
             logger.error(e.getMessage(), e);
         }
     }
 
     @Override
+/**
+ * 处理接收到的二进制消息。
+ *
+ * @param session 当前的WebSocket会话
+ * @param message 接收到的二进制消息
+ */
     public void handleBinaryMessage(WebSocketSession session,
-                                    BinaryMessage message)
-    {
+                                    BinaryMessage message) {
+
+        // 创建日志记录器，用于记录信息
         final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
 
-        try{
+        // 使用try-catch结构来处理潜在的异常
+        try {
+            // 调用父类的方法处理二进制消息
             super.handleBinaryMessage(session, message);
-        }catch(Exception e){
-            logger.info("WebSocket handleBinaryMessage异常",e);
+        } catch (Exception e) {
+            // 如果处理二进制消息时发生异常，记录该异常信息
+            logger.info("WebSocket handleBinaryMessage异常", e);
         }
-
     }
 
     @Override
+/**
+ * 处理接收到的Pong消息。
+ *
+ * @param session 当前的WebSocket会话
+ * @param pongMessage 接收到的Pong消息
+ */
     public void handlePongMessage(WebSocketSession session,
-                                  PongMessage pongMessage)
-    {
+                                  PongMessage pongMessage) {
+
+        // 创建日志记录器，用于记录信息
         final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
 
-        try{
+        // 使用try-catch结构来处理潜在的异常
+        try {
+            // 调用父类的方法处理 Pong 消息
             super.handlePongMessage(session, pongMessage);
-        }catch(Exception e){
-            logger.info("WebSocket handlePongMessage异常:",e);
+        } catch (Exception e) {
+            // 如果处理 Pong 消息时发生异常，记录该异常信息
+            logger.info("WebSocket handlePongMessage异常:", e);
         }
     }
 
     @Override
+/**
+ * 在WebSocket连接关闭后执行的操作。
+ *
+ * @param session 当前的WebSocket会话
+ * @param status 关闭状态
+ * @throws Exception 可能抛出的异常
+ */
     public void afterConnectionClosed(WebSocketSession session,
-                                      CloseStatus status) throws Exception
-    {
+                                      CloseStatus status) throws Exception {
+
+        // 从会话属性中获取用户ID
         Long userId = (Long) session.getAttributes().get("userId");
-        userOffline(userId);  // 用户下线
-        removeSession(userId); // 移除用户会话
+
+        // 用户下线，执行相关处理
+        userOffline(userId);  // 处理用户下线逻辑
+
+        // 移除用户会话，释放相关资源
+        removeSession(userId); // 移除用户的会话信息
 
         // 用户下线时，从等待队列中移除
-        removeFromWaitingQueue(session);
+        removeFromWaitingQueue(session); // 从等待队列中移除该用户
 
         // 如果用户退出，清除匹配关系
-        userMatches.remove(userId);
+        userMatches.remove(userId); // 移除用户的匹配关系
     }
 }
