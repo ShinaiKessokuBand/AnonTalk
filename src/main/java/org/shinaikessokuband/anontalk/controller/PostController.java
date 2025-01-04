@@ -6,6 +6,7 @@ import org.shinaikessokuband.anontalk.entity.Post;
 import org.shinaikessokuband.anontalk.service.PostService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class PostController {
     public PostController(PostService postService) {
         this.postService = postService;
     }
-
+    private Map<Integer, Integer> commentLikes = new HashMap<>();
     /**
      * 创建一个新的帖子。
      *
@@ -146,6 +147,140 @@ public class PostController {
         Map<String, Object> response = new HashMap<>();
         try {
             postService.unlikePost(postId);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("errorMsg", e.getMessage());
+            return Response.newError(response);
+        }
+        response.put("success", true);
+        return Response.newSuccess(response);
+    }
+    private Map<Integer, List<String>> comments = new HashMap<>();
+
+    /**
+     * 添加评论到指定帖子。
+     *
+     * 该方法接收帖子的 ID 和评论内容，添加评论到指定帖子。
+     *
+     * 请求的 URL：/api/posts/{postId}/comments
+     * 请求方法：POST
+     *
+     * @param postId 帖子的唯一标识符，作为路径参数传入
+     * @param comment 包含评论内容的数据，作为请求体传入
+     * @return 返回操作结果的响应，成功或失败
+     */
+    @PostMapping("/api/posts/{postId}/comments")
+    public Response<Map<String, Object>> addComment(@PathVariable Integer postId, @RequestBody Map<String, Object> comment) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String content = (String) comment.get("content");
+            comments.computeIfAbsent(postId, k -> new ArrayList<>()).add(content);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("errorMsg", e.getMessage());
+            return Response.newError(response);
+        }
+        response.put("success", true);
+        return Response.newSuccess(response);
+    }
+    /**
+     * 获取指定帖子的所有评论。
+     *
+     * 该方法通过帖子的 ID 获取该帖子的所有评论。
+     *
+     * 请求的 URL：/api/posts/{postId}/comments
+     * 请求方法：GET
+     *
+     * @param postId 帖子的唯一标识符，作为路径参数传入
+     * @return 返回该帖子的所有评论列表
+     */
+    @GetMapping("/api/posts/{postId}/comments")
+    public Response<List<String>> getComments(@PathVariable Integer postId) {
+        List<String> postComments = comments.getOrDefault(postId, new ArrayList<>());
+        return Response.newSuccess(postComments);
+    }
+    /**
+     * 删除指定帖子的指定评论。
+     *
+     * 该方法接收帖子的 ID 和评论的索引，删除指定帖子的指定评论。
+     *
+     * 请求的 URL：/api/posts/{postId}/comments/{commentIndex}
+     * 请求方法：DELETE
+     *
+     * @param postId 帖子的唯一标识符，作为路径参数传入
+     * @param commentIndex 评论的索引，作为路径参数传入
+     * @return 返回操作结果的响应，成功或失败
+     */
+    @DeleteMapping("/api/posts/{postId}/comments/{commentIndex}")
+    public Response<Map<String, Object>> deleteComment(@PathVariable Integer postId, @PathVariable Integer commentIndex) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<String> postComments = comments.get(postId);
+            if (postComments != null && commentIndex < postComments.size()) {
+                postComments.remove((int) commentIndex);
+            } else {
+                throw new IndexOutOfBoundsException("Comment not found");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("errorMsg", e.getMessage());
+            return Response.newError(response);
+        }
+        response.put("success", true);
+        return Response.newSuccess(response);
+    }
+
+    /**
+     * 点赞指定评论。
+     *
+     * 该方法接收帖子的 ID 和评论的索引，点赞指定评论。
+     *
+     * 请求的 URL：/api/posts/{postId}/comments/{commentIndex}/like
+     * 请求方法：PUT
+     *
+     * @param postId 帖子的唯一标识符，作为路径参数传入
+     * @param commentIndex 评论的索引，作为路径参数传入
+     * @return 返回操作结果的响应，成功或失败
+     */
+    @PutMapping("/api/posts/{postId}/comments/{commentIndex}/like")
+    public Response<Map<String, Object>> likeComment(@PathVariable Integer postId, @PathVariable Integer commentIndex) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<String> postComments = comments.get(postId);
+            if (postComments != null && commentIndex < postComments.size()) {
+                int commentId = postId * 1000 + commentIndex; // Generate a unique ID for the comment
+                commentLikes.put(commentId, commentLikes.getOrDefault(commentId, 0) + 1);
+            } else {
+                throw new IndexOutOfBoundsException("Comment not found");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("errorMsg", e.getMessage());
+            return Response.newError(response);
+        }
+        response.put("success", true);
+        return Response.newSuccess(response);
+    }
+
+    /**
+     * 获取指定评论的点赞数。
+     *
+     * 该方法接收帖子的 ID 和评论的索引，获取指定评论的点赞数。
+     *
+     * 请求的 URL：/api/posts/{postId}/comments/{commentIndex}/likes
+     * 请求方法：GET
+     *
+     * @param postId 帖子的唯一标识符，作为路径参数传入
+     * @param commentIndex 评论的索引，作为路径参数传入
+     * @return 返回指定评论的点赞数
+     */
+    @GetMapping("/api/posts/{postId}/comments/{commentIndex}/likes")
+    public Response<Map<String, Object>> getCommentLikes(@PathVariable Integer postId, @PathVariable Integer commentIndex) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            int commentId = postId * 1000 + commentIndex; // Generate a unique ID for the comment
+            int likes = commentLikes.getOrDefault(commentId, 0);
+            response.put("likes", likes);
         } catch (Exception e) {
             response.put("success", false);
             response.put("errorMsg", e.getMessage());
