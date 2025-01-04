@@ -6,10 +6,15 @@ public interface SettingService {
 
     User updateStudentByAccount(
             Integer userId,
+
             String name,
+
             String email,
+
             String password,
+
             String hobbies,
+
             String phoneNumber
     );
 

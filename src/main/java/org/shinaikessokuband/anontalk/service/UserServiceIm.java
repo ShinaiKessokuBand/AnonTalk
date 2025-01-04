@@ -10,20 +10,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.shinaikessokuband.anontalk.entity.User;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.socket.WebSocketSession;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
 
+/**
+ * 用户服务实现类，提供用户相关的业务逻辑。
+ */
 @Service
 public class UserServiceIm implements UserService {
 
+    private final UserRepository userRepository; // 用户存储库，用于与用户数据交互
 
-    private final UserRepository userRepository;
+    private final DataSource dataSource; // 数据源，用于数据库连接
 
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceIm.class); // 日志记录器
+
+    /**
+     * 构造函数，通过依赖注入获取用户存储库和数据源的实例。
+     *
+     * @param userRepository 用户存储库
+     * @param dataSource     数据源
+     */
     public UserServiceIm(UserRepository userRepository, DataSource dataSource) {
         this.userRepository = userRepository;
         this.dataSource = dataSource;
@@ -31,82 +40,82 @@ public class UserServiceIm implements UserService {
 
     @Override
     public UserDto getUserByAccount(String userName) {
-        List<User> res = userRepository.findByUsername(userName);
-        if(!res.isEmpty()) {
-            return UserConverter.convertUser(res.get(0));
+        List<User> res = userRepository.findByUsername(userName); // 根据用户名查找用户
+        if (!res.isEmpty()) {
+            return UserConverter.convertUser(res.get(0)); // 转换为 UserDto 并返回
         }
-        return null;
+        return null; // 如果未找到用户，返回 null
     }
 
     @Override
     public void deleteUserByAccount(String userName) {
-        List<User> res = userRepository.findByUsername(userName);
+        List<User> res = userRepository.findByUsername(userName); // 查找用户
 
-        if (res != null)
-        {
-            User user = res.getFirst();
-            userRepository.deleteByUserId(user.getUserId());
+        if (res != null && !res.isEmpty()) {
+            User user = res.get(0); // 获取第一个用户
+            userRepository.deleteByUserId(user.getUserId()); // 根据用户 ID 删除用户
+        } else {
+            throw new IllegalArgumentException("账户: " + userName + " 不存在"); // 账户不存在异常
         }
-        else
-            throw new IllegalArgumentException("account: " + userName + " does not exist");
     }
-
-
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceIm.class);
-
-    private final DataSource dataSource;
 
     @Override
     public int login(String username, String password) {
-        // Check database connection
+        // 检查数据库连接
         try (Connection connection = dataSource.getConnection()) {
             if (connection.isValid(2)) {
-                logger.info("Database connection is successful.");
+                logger.info("数据库连接成功。");
             } else {
-                logger.error("Database connection failed.");
-                return -1;
+                logger.error("数据库连接失败。");
+                return -1; // 连接失败返回 -1
             }
         } catch (SQLException e) {
-            logger.error("Database connection failed: {}", e.getMessage());
-            return -1;
+            logger.error("数据库连接失败: {}", e.getMessage());
+            return -1; // 连接异常返回 -1
         }
 
-        // Log in logic
-        logger.info("Attempting to log in with username: {}", username);
-        List<User> users = userRepository.findByUsername(username);
+        // 登录逻辑
+        logger.info("尝试使用用户名登录: {}", username);
+        List<User> users = userRepository.findByUsername(username); // 查找用户
         if (!users.isEmpty()) {
-            User user = users.get(0); // Assuming username is unique and taking the first match
-            if (user.getPassword().equals(password)) {
-                if(user.isBanned()){
-                    logger.warn("User with username: {} is banned.", username);
-                    return -1;
+            User user = users.get(0); // 假设用户名唯一，获取第一个匹配的用户
+            if (user.getPassword().equals(password)) { // 验证密码
+                if (user.isBanned()) { // 检查用户是否被封禁
+                    logger.warn("用户名为: {} 的用户已被封禁。", username);
+                    return -1; // 被封禁返回 -1
                 }
-                user.setOnline(true);
-                logger.info("Login successful for username: {}", username);
-                return user.getUserId();
+                user.setOnline(true); // 设置用户为在线状态
+                logger.info("用户名: {} 登录成功。", username);
+                return user.getUserId(); // 返回用户 ID
             } else {
-                logger.warn("Login failed for username: {}", username);
-                return -1;
+                logger.warn("用户名: {} 登录失败，密码错误。", username);
+                return -1; // 密码错误返回 -1
             }
         } else {
-            logger.warn("No user found with username: {}", username);
-            return -1;
+            logger.warn("用户名: {} 未找到。", username);
+            return -1; // 用户未找到返回 -1
         }
     }
 
     @Override
     public boolean logout(String userName) {
-        User user = (User) userRepository.findByUsername(userName);
-        if (user != null) {
-            user.setOnline(false);
-            return true;
+        List<User> users = userRepository.findByUsername(userName); // 查找用户
+        if (!users.isEmpty()) {
+            User user = users.get(0); // 获取第一个用户
+            user.setOnline(false); // 设置用户为离线状态
+            userRepository.save(user); // 保存更改
+            return true; // 登出成功
         }
-        return false;
+        return false; // 用户未找到，登出失败
     }
 
-
-    /*
-    Transactional注解表示该方法需要在事务中执行，如果方法执行成功，则提交事务，否则回滚事务，撤销所做的更改，保证数据一致性。
+    /**
+     * 注册新用户，事务性操作。
+     *
+     * @param phone    用户手机号
+     * @param username 用户名
+     * @param password 用户密码
+     * @return 新用户 ID
      */
     @Transactional
     @Override
@@ -115,12 +124,12 @@ public class UserServiceIm implements UserService {
         userDto.setPhoneNumber(phone);
         userDto.setUsername(username);
         userDto.setPassword(password);
-        if(!userRepository.findByUsername(username).isEmpty()){
-            logger.error("Username: {} has been taken.", username);
-            return -1;
+        if (!userRepository.findByUsername(username).isEmpty()) {
+            logger.error("用户名: {} 已被占用。", username);
+            return -1; // 用户名已存在返回 -1
         }
-        User user = userRepository.save(UserConverter.convertUserDto(userDto));
-        return user.getUserId();
+        User user = userRepository.save(UserConverter.convertUserDto(userDto)); // 保存新用户
+        return user.getUserId(); // 返回新用户 ID
     }
 
     @Override
@@ -130,21 +139,22 @@ public class UserServiceIm implements UserService {
 
     @Override
     public int getOnlineUserCount() {
-        List<User> userList = userRepository.findAll();
-        //get all online users
+        List<User> userList = userRepository.findAll(); // 获取所有用户
         int count = 0;
+        // 统计在线用户
         for (User user : userList) {
             if (user.isOnline()) {
                 count++;
             }
         }
-        return count /* 在线用户数量 */;
+        return count; // 返回在线用户数量
     }
 
     @Override
     public void banUser(String userName) {
-        User user = (User) userRepository.findByUsername(userName);
-        if (user != null) {
+        List<User> users = userRepository.findByUsername(userName); // 查找用户
+        if (!users.isEmpty()) {
+            User user = users.get(0); // 获取第一个用户
             user.setBanned(true); // 设置用户为封禁状态
             userRepository.save(user); // 保存用户状态
         }
@@ -152,45 +162,70 @@ public class UserServiceIm implements UserService {
 
     @Override
     public void activateUser(String userName) {
-        User user = (User) userRepository.findByUsername(userName);
-        if (user != null) {
+        List<User> users = userRepository.findByUsername(userName); // 查找用户
+        if (!users.isEmpty()) {
+            User user = users.get(0); // 获取第一个用户
             user.setBanned(false); // 设置用户为解封状态
             userRepository.save(user); // 保存用户状态
         }
     }
 
+    /**
+     * 更新用户信息，事务性操作。
+     *
+     * @param userid   用户 ID
+     * @param username 新用户名
+     * @param gender   性别
+     * @param hobbies  爱好
+     * @return 0 表示成功，-1 表示用户不存在
+     */
     @Transactional
-    public int updateUserInfo(int userid, String username, String gender, String hobbies) {
-        List<User> result = userRepository.findByUserId(userid);
+    public int updateUserInfo(int userid,
+                              String username,
+                              String gender,
+                              String hobbies)
+    {
+        List<User> result = userRepository.findByUserId(userid); // 根据用户 ID 查找用户
         if (result.isEmpty()) {
-            logger.error("User with id: {} does not exist.", userid);
-            return -1;
+            logger.error("ID 为: {} 的用户不存在。", userid);
+            return -1; // 用户不存在返回 -1
         }
-        User user = result.getFirst();
-        user.setGender(gender);
-        user.setHobbies(hobbies);
-        if(!username.isEmpty()) {
-            user.setUsername(username);
+        User user = result.get(0); // 获取用户
+        user.setGender(gender); // 设置性别
+        user.setHobbies(hobbies); // 设置爱好
+        if (!username.isEmpty()) {
+            user.setUsername(username); // 设置用户名
         }
-        userRepository.save(user);
-        return 0;
+        userRepository.save(user); // 保存用户信息
+        return 0; // 返回成功
     }
 
+    /**
+     * 更新用户安全信息，事务性操作。
+     *
+     * @param userid   用户 ID
+     * @param password 新密码
+     * @param phone    新手机号
+     * @return 0 表示成功，-1 表示用户不存在
+     */
     @Transactional
-    public int updateUserSecurity(int userid, String password, String phone) {
-        List<User> result = userRepository.findByUserId(userid);
+    public int updateUserSecurity(int userid,
+                                  String password,
+                                  String phone)
+    {
+        List<User> result = userRepository.findByUserId(userid); // 根据用户 ID 查找用户
         if (result.isEmpty()) {
-            logger.error("User with id: {} does not exist.", userid);
-            return -1;
+            logger.error("ID 为: {} 的用户不存在。", userid);
+            return -1; // 用户不存在返回 -1
         }
-        User user = result.getFirst();
-        if(!password.isEmpty()) {
-            user.setPassword(password);
+        User user = result.get(0); // 获取用户
+        if (!password.isEmpty()) {
+            user.setPassword(password); // 设置新密码
         }
-        if(!phone.isEmpty()) {
-            user.setPhoneNumber(phone);
+        if (!phone.isEmpty()) {
+            user.setPhoneNumber(phone); // 设置新手机号
         }
-        userRepository.save(user);
-        return 0;
+        userRepository.save(user); // 保存用户安全信息
+        return 0; // 返回成功
     }
 }
