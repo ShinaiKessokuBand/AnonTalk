@@ -116,7 +116,7 @@ public class PostController {
      * @param postId 帖子的唯一标识符，作为路径参数传入
      * @return 返回操作结果的响应，成功或失败
      */
-    @PutMapping("/api/posts/{postId}")
+    @PutMapping("/api/posts/like/{postId}")
     public Response<Map<String, Object>> likePost(@PathVariable Integer postId) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -141,7 +141,7 @@ public class PostController {
      * @param postId 帖子的唯一标识符，作为路径参数传入
      * @return 返回操作结果的响应，成功或失败
      */
-    @PutMapping("/api/posts/{postId}")
+    @PutMapping("/api/posts/unlike/{postId}")
     public Response<Map<String, Object>> unlikePost(@PathVariable Integer postId) {
         Map<String, Object> response = new HashMap<>();
         try {
